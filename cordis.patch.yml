@@ -1,0 +1,5 @@
+# Mounts the WE2 console skin. The browser half is discovered through the
+# package's dsh.client manifest and ./client export; the Host half is empty.
+- insert:
+    - id: ui-we2
+      name: dsh-ui-we2

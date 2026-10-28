@@ -1,0 +1,38 @@
+{
+  "name": "dsh-ui-we2",
+  "version": "0.5.0",
+  "description": "WE2 console: an off-white and ink future-industrial skin for the DeepSeek Harness web UI (paper surfaces, hard hairlines, HUD chrome)",
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "dsh",
+    "theme",
+    "skin",
+    "sci-fi"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

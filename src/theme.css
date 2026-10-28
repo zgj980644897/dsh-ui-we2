@@ -1,0 +1,908 @@
+/* ==========================================================================
+   WE2 CONSOLE — an off-white / ink future-industrial skin for DeepSeek Harness
+   --------------------------------------------------------------------------
+   Layer 1 rewrites the --dsw-* token contract (surfaces, ink, hairlines,
+   geometry, motion). Layer 2 re-dresses the few components whose look is
+   semantic rather than token-driven (user bubble, prose, code blocks, HUD).
+   Everything else follows the tokens, so product updates keep working.
+   ========================================================================== */
+
+/* ---------- 1. Palette ---------------------------------------------------- */
+
+html body,
+html body[data-ds-dark-theme] {
+  /* paper */
+  --we2-paper-0: #fdfcf8;
+  --we2-paper-1: #f8f5ed;
+  --we2-paper-2: #f0ece1;
+  --we2-paper-3: #e6e1d3;
+  --we2-paper-4: #d9d2c1;
+  /* ink */
+  --we2-ink-0: #111110;
+  --we2-ink-1: #26241f;
+  --we2-ink-2: #4c473d;
+  --we2-ink-3: #726c60;
+  --we2-ink-4: #948d7e;
+  /* hairlines */
+  --we2-rule-1: rgb(17 17 16 / 6%);
+  --we2-rule-2: rgb(17 17 16 / 12%);
+  --we2-rule-3: rgb(17 17 16 / 18%);
+  --we2-rule-4: rgb(17 17 16 / 26%);
+  /* signals */
+  --we2-signal: #b2352a;
+  --we2-signal-soft: rgb(178 53 42 / 12%);
+  --we2-warn: #a56b1e;
+  --we2-data: #2b6771;
+
+  /* surfaces */
+  --dsw-alias-bg-base: var(--we2-paper-1);
+  --dsw-alias-bg-layer-1: var(--we2-paper-0);
+  --dsw-alias-bg-layer-2: var(--we2-paper-2);
+  --dsw-alias-bg-layer-3: var(--we2-paper-3);
+  --dsw-alias-bg-overlay: var(--we2-paper-0);
+  --dsw-alias-bg-module-platform: var(--we2-paper-2);
+  --dsw-alias-bg-multi-select: var(--we2-paper-3);
+  --dsw-alias-bg-document-preview: var(--we2-paper-0);
+  --dsw-alias-bg-document-selection: rgb(178 53 42 / 20%);
+  --dsw-alias-bg-skeleton: rgb(17 17 16 / 5%);
+  --dsw-alias-bg-mask-drop: rgb(246 243 234 / 72%);
+
+  /* ink */
+  --dsw-alias-label-primary: var(--we2-ink-0);
+  --dsw-alias-label-primary-bluish: var(--we2-ink-0);
+  --dsw-alias-label-secondary: var(--we2-ink-2);
+  --dsw-alias-label-tertiary: var(--we2-ink-3);
+  --dsw-alias-label-caption: var(--we2-ink-4);
+  --dsw-alias-label-dimmed: #b9b2a2;
+  --dsw-alias-label-primary-inverted: var(--we2-paper-0);
+  --dsw-alias-label-primary-foreground: var(--we2-paper-0);
+  --dsw-alias-label-document-preview: var(--we2-ink-2);
+  --dsw-alias-label-shimmer: rgb(17 17 16 / 30%);
+  --dsw-alias-label-deep-diving: #275f68;
+  --dsw-alias-label-deep-diving-shimmer: rgb(43 103 113 / 35%);
+  --dsw-alias-menu-icon: #3c382f;
+  --dsw-alias-link: #1e5a63;
+
+  /* hairlines */
+  --dsw-alias-border-l1: var(--we2-rule-1);
+  --dsw-alias-border-l2: var(--we2-rule-2);
+  --dsw-alias-border-l2-darkmode-thin: var(--we2-rule-2);
+  --dsw-alias-border-l3: var(--we2-rule-3);
+  --dsw-alias-border-l4: var(--we2-rule-4);
+  --dsw-alias-border-inverted: rgb(246 243 234 / 22%);
+  --dsw-alias-border-inverted2: rgb(246 243 234 / 34%);
+  --dsw-elevation-stroke-color: var(--we2-rule-4);
+
+  /* brand + controls */
+  --dsw-alias-brand-primary: var(--we2-ink-0);
+  --dsw-alias-brand-text: var(--we2-ink-0);
+  --dsw-alias-brand-primary-invert: var(--we2-paper-0);
+  --dsw-alias-brand-primary-new-colorprimary-new-color: var(--we2-data);
+  --dsw-alias-button-primary-fill: var(--we2-ink-0);
+  --dsw-alias-button-primary-hover: #3a3730;
+  --dsw-alias-button-primary-dimmed: var(--we2-paper-4);
+  --dsw-alias-button-contrast-fill: var(--we2-ink-0);
+  --dsw-alias-button-elevated-fill: var(--we2-paper-0);
+  --dsw-alias-button-floating-fill: var(--we2-paper-0);
+  --dsw-alias-button-floating-hover: var(--we2-paper-2);
+  --dsw-alias-button-ghost-active-border: var(--we2-ink-0);
+  --dsw-alias-button-ghost-active-fill: var(--we2-paper-2);
+  --dsw-alias-button-ghost-active-hover: var(--we2-paper-3);
+  --dsw-alias-button-info-fill: var(--we2-data);
+  --dsw-alias-button-info-hover: #357c88;
+  --dsw-alias-button-tool-bar-fill: rgb(17 17 16 / 52%);
+  --dsw-alias-button-tool-bar-fill-invisible: rgb(17 17 16 / 30%);
+  --dsw-alias-button-tool-bar-hover: rgb(17 17 16 / 66%);
+
+  /* interaction */
+  --dsw-alias-interactive-bg-hover: rgb(17 17 16 / 5%);
+  --dsw-alias-interactive-bg-active: rgb(17 17 16 / 9%);
+  --dsw-alias-interactive-bg-hover-solid: var(--we2-paper-2);
+  --dsw-alias-interactive-bg-hover-accent: rgb(43 103 113 / 14%);
+  --dsw-alias-interactive-bg-hover-danger: rgb(178 53 42 / 8%);
+
+  /* states */
+  --dsw-alias-state-error-primary: var(--we2-signal);
+  --dsw-alias-state-error-secondary: #c9553f;
+  --dsw-alias-state-warn-primary: var(--we2-warn);
+  --dsw-alias-state-warn-secondary: #c08a38;
+  --dsw-alias-state-warn-tertiary: #f0e3ce;
+  --dsw-alias-state-warn-label: #8a5714;
+  --dsw-alias-state-success-primary: #3f6b45;
+  --dsw-alias-state-success-secondary: #58845e;
+  --dsw-alias-state-success-tertiary: #dfe8da;
+  --dsw-alias-state-idle-primary: #c2bbab;
+  --dsw-alias-state-business-primary: var(--we2-data);
+  --dsw-alias-state-business-tertiary: #dce7e6;
+
+  /* code + prose */
+  --dsw-alias-markdown-code-block: #191813;
+  --dsw-alias-markdown-code-block-banner: #23221b;
+  --dsw-alias-markdown-inline-code: var(--we2-paper-2);
+  --dsw-alias-markdown-code-segment-selected: var(--we2-paper-0);
+  --dsw-alias-markdown-code-segment-unselected: var(--we2-paper-3);
+  --dsw-alias-markdown-citation: var(--we2-paper-2);
+  --dsw-alias-markdown-tag: var(--we2-paper-2);
+  --dsw-alias-markdown-placeholder: #c6bfb0;
+  --dsw-alias-turn-trigger-bg: rgb(17 17 16 / 5%);
+  --dsw-alias-turn-trigger-bg-hover: rgb(17 17 16 / 9%);
+  /* syntax palette on the ink code surface */
+  --shiki-foreground: #e9e4d6;
+  --shiki-background: #191813;
+  --shiki-token-constant: #9ab8c9;
+  --shiki-token-string: #b7c29a;
+  --shiki-token-comment: #8a8578;
+  --shiki-token-keyword: #d08a6b;
+  --shiki-token-parameter: #d9a15e;
+  --shiki-token-function: #a8b9c9;
+  --shiki-token-string-expression: #9fb08a;
+  --shiki-token-punctuation: #9d978a;
+  --shiki-token-link: #8fb3c6;
+
+  /* menus, overlays, composer */
+  --dsw-menu-surface-fill: var(--we2-paper-0);
+  --dsw-menu-backdrop-filter: none;
+  --dsw-specific-menu: var(--we2-paper-0);
+  --dsw-alias-menu-group-header-fill: #f0ece0;
+  --dsw-specific-selector: var(--we2-paper-3);
+  --dsw-specific-tip: var(--we2-paper-2);
+  --dsw-specific-input-major: var(--we2-paper-0);
+  --dsw-specific-login-input: var(--we2-paper-0);
+  --dsw-specific-bubble: var(--we2-paper-2);
+  --dsw-specific-bubble-highlight: var(--we2-paper-3);
+  --dsw-alias-toast-bg: var(--we2-ink-0);
+  --dsw-alias-toast-label: var(--we2-paper-0);
+  --dsw-alias-tooltip-bg: var(--we2-ink-0);
+  --dsw-alias-tooltip-key-bg: rgb(246 243 234 / 16%);
+
+  /* sidebar */
+  --dsw-specific-sidebar-fill: #e3ddcd;
+  --dsw-specific-sidebar-nav-item-active: var(--we2-paper-4);
+  --dsw-specific-sidebar-nav-item-active-accent: var(--we2-paper-4);
+
+  /* scrollbars */
+  --dsw-alias-scrollbar-bg-l1: var(--we2-paper-4);
+  --dsw-alias-scrollbar-bg-l2: #ccc5b2;
+  --dsw-alias-scrollbar-hover-l1: var(--we2-ink-2);
+  --dsw-alias-scrollbar-hover-l2: var(--we2-ink-2);
+
+  /* diffs, illustrations */
+  --dsw-alias-code-diff-added: rgb(63 107 69 / 10%);
+  --dsw-alias-code-diff-deleted: rgb(178 53 42 / 10%);
+  --dsw-alias-file-diff-added-bg: #e6ebdd;
+  --dsw-alias-file-diff-added-gutter: #eef1e7;
+  --dsw-alias-file-diff-added-marker: #3f6b45;
+  --dsw-alias-file-diff-deleted-bg: #f1e2dd;
+  --dsw-alias-file-diff-deleted-gutter: #f6ebe7;
+  --dsw-alias-file-diff-deleted-marker: #b2352a;
+  --dsw-alias-illustration-background: var(--we2-paper-2);
+  --dsw-alias-illustration-surface: var(--we2-paper-0);
+  --dsw-alias-illustration-backing: var(--we2-paper-4);
+  --dsw-alias-illustration-detail: #b9b2a2;
+  --dsw-alias-illustration-inset: var(--we2-paper-0);
+  --dsw-alias-illustration-shadow: var(--we2-paper-0);
+  --dsw-alias-switch-thumb: var(--we2-paper-0);
+
+  /* static neutrals some surfaces still reach for */
+  --dsw-static-neutral-bluish-00: var(--we2-paper-0);
+  --dsw-static-neutral-bluish-50: var(--we2-paper-1);
+  --dsw-static-neutral-bluish-60: var(--we2-paper-1);
+  --dsw-static-neutral-bluish-75: var(--we2-paper-2);
+  --dsw-static-neutral-bluish-100: var(--we2-paper-2);
+  --dsw-static-neutral-bluish-150: var(--we2-paper-3);
+  --dsw-static-neutral-bluish-1000: var(--we2-ink-0);
+  --dsw-static-deepseek-400: #357c88;
+  --dsw-static-deepseek-500: var(--we2-data);
+  --dsw-static-deepseek-100: #dce7e6;
+
+  color-scheme: light;
+  background-color: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+}
+
+/* ---------- 2. Geometry, elevation, motion -------------------------------- */
+
+:root {
+  --dsw-radius-xs: 0px;
+  --dsw-radius-sm: 0px;
+  --dsw-radius-md: 0px;
+  --dsw-radius-lg: 0px;
+  --dsw-radius-xl: 0px;
+  --dsw-radius-panel: 0px;
+  --dsw-corner-shape: square;
+  --ds-transition-duration: 0.14s;
+  --ds-transition-duration-fast: 0.08s;
+  --ds-transition-duration-slow: 0.22s;
+  --dsw-font-family-brand: 'Bahnschrift', 'DIN Alternate', 'Arial Narrow', 'Montserrat', sans-serif;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  :root {
+    --dsw-corner-shape: square;
+  }
+}
+
+/* Hard rules instead of drop shadows: a 1px ink stroke plus one crisp offset. */
+body,
+body * {
+  --dsw-elevation-stroke: 0 0 0 1px var(--dsw-elevation-stroke-color);
+  --dsw-elevation-panel: var(--dsw-elevation-stroke), 0 2px 0 0 rgb(17 17 16 / 5%);
+  --dsw-elevation-prominent: var(--dsw-elevation-stroke), 0 2px 0 0 rgb(17 17 16 / 7%);
+  --dsw-elevation-soft: var(--dsw-elevation-stroke), 0 2px 0 0 rgb(17 17 16 / 4%);
+}
+
+html body,
+html body[data-ds-dark-theme] {
+  --dsw-shadow-lv1: 0 0 0 1px var(--we2-rule-3);
+  --dsw-shadow-lv1-blur: 0 2px 0 0 rgb(17 17 16 / 4%);
+  --dsw-shadow-lv2: 0 0 0 1px var(--we2-rule-3), 0 2px 0 0 rgb(17 17 16 / 5%);
+  --dsw-shadow-lv3: 0 0 0 1px var(--we2-rule-4), 0 3px 0 0 rgb(17 17 16 / 6%);
+}
+
+/* ---------- 3. Typography ------------------------------------------------- */
+
+html body {
+  --dsh-font-family-text: 'Bahnschrift', 'Microsoft YaHei UI', 'Microsoft YaHei',
+    'PingFang SC', 'Hiragino Sans GB', 'Segoe UI', sans-serif;
+  --dsh-font-family-code: 'Cascadia Mono', 'JetBrains Mono', 'SF Mono', 'Consolas',
+    'Liberation Mono', 'Microsoft YaHei', monospace;
+  letter-spacing: 0.008em;
+}
+
+::selection {
+  background: var(--we2-ink-0);
+  color: var(--we2-paper-0);
+}
+
+textarea,
+input,
+[contenteditable='true'] {
+  caret-color: var(--we2-ink-0);
+}
+
+/* Machine readings: timestamps and counters ride the mono stack. */
+[class*='timeStart'],
+[class*='timeEnd'],
+[class*='durationNumber'],
+[class*='turnErrorCode'] {
+  font-family: var(--ds-font-family-code);
+  letter-spacing: 0.06em;
+}
+
+/* ---------- 4. Prose ------------------------------------------------------ */
+
+[class*='_markdown_'] h1,
+[class*='_markdown_'] h2,
+[class*='_markdown_'] h3 {
+  font-family: 'Bahnschrift', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+[class*='_markdown_'] h1,
+[class*='_markdown_'] h2 {
+  border-bottom: 1px solid var(--we2-rule-3);
+  padding-bottom: 0.28em;
+}
+
+/* Signal tick: every section heading is indexed like a console readout. */
+[class*='_markdown_'] h2::before,
+[class*='_markdown_'] h3::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 0.78em;
+  margin-right: 0.45em;
+  vertical-align: -0.04em;
+  background: var(--we2-signal);
+}
+
+[class*='_markdown_'] blockquote {
+  border-left: 2px solid var(--we2-ink-0);
+  background: linear-gradient(90deg, rgb(17 17 16 / 4%), transparent 70%);
+  padding: 2px 0 2px 14px;
+  color: var(--we2-ink-2);
+}
+
+[class*='_markdown_'] hr {
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--we2-rule-4) 0 6px, transparent 6px 12px);
+}
+
+[class*='_markdown_'] th {
+  background: var(--we2-paper-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+[class*='_markdown_'] table {
+  border: 1px solid var(--we2-rule-3);
+}
+
+/* Inline code rides the ink chip so it reads as a machine token. */
+:not(pre) > code {
+  background: var(--we2-ink-0) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: var(--we2-paper-0);
+  padding: 0 5px !important;
+  box-shadow: inset 0 0 0 1px rgb(246 243 234 / 14%);
+}
+
+/* Code blocks invert to an ink console panel; inner tokens flip with them. */
+.md-code-block {
+  --dsw-alias-label-primary: #e9e4d6;
+  --dsw-alias-label-secondary: #b8b1a2;
+  --dsw-alias-label-tertiary: #8f897a;
+  --dsw-alias-bg-base: #191813;
+  --dsw-alias-border-l2: rgb(246 243 234 / 16%);
+  box-shadow: inset 0 0 0 1px rgb(246 243 234 / 10%);
+}
+
+.md-code-block [data-code-block-banner] {
+  border-bottom: 1px solid rgb(246 243 234 / 12%);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.md-code-block [data-code-block-banner]::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  background: var(--we2-signal);
+}
+
+.md-code-block [data-code-block-banner] * {
+  color: inherit;
+}
+
+/* ---------- 5. Conversation surfaces ------------------------------------- */
+
+/* Operator messages become ink panels with a signal-red edge. */
+[class*='userStack'] [class*='bubble'],
+[class*='userRow'] [class*='bubble'] {
+  --dsw-alias-label-primary: var(--we2-paper-0);
+  --dsw-alias-label-secondary: #cdc7b8;
+  --dsw-alias-label-tertiary: #a49d8d;
+  --dsw-alias-link: #e2c79b;
+
+  background: #14130f;
+  border: 0;
+  border-left: 3px solid var(--we2-signal);
+  border-radius: 0;
+  color: var(--we2-paper-0);
+  padding: 10px 15px;
+  box-shadow:
+    inset 0 0 0 1px rgb(246 243 234 / 8%),
+    0 1px 0 0 rgb(17 17 16 / 12%);
+}
+
+[class*='userStack'] [class*='bubble'] *,
+[class*='userRow'] [class*='bubble'] * {
+  color: inherit;
+}
+
+[class*='userStack'] a,
+[class*='userRow'] [class*='bubble'] a {
+  color: #e2c79b;
+  text-decoration: underline dotted;
+}
+
+[class*='userStack'] code,
+[class*='userRow'] [class*='bubble'] code {
+  background: rgb(246 243 234 / 12%) !important;
+  color: var(--we2-paper-0);
+  box-shadow: none;
+}
+
+/* Sidebar column: an ink chassis on the paper canvas. Tokens are scoped to the
+   column so menus and dialogs that portal to <body> keep the paper palette. */
+[class*='sidebarCol'] {
+  --dsw-specific-sidebar-fill: #111110;
+  --dsw-alias-bg-base: #111110;
+  --dsw-alias-bg-layer-1: #1b1a15;
+  --dsw-alias-bg-layer-2: #23221b;
+  --dsw-alias-bg-layer-3: #2b2a21;
+  --dsw-alias-label-primary: var(--we2-paper-0);
+  --dsw-alias-label-primary-bluish: var(--we2-paper-0);
+  --dsw-alias-label-secondary: #c6c0b2;
+  --dsw-alias-label-tertiary: #948e80;
+  --dsw-alias-label-caption: #7b7568;
+  --dsw-alias-label-primary-inverted: #111110;
+  --dsw-alias-label-primary-foreground: #111110;
+  --dsw-alias-label-dimmed: #3a382f;
+  --dsw-alias-menu-icon: #c6c0b2;
+  --dsw-alias-link: #e2c79b;
+  --dsw-alias-border-l1: rgb(246 243 234 / 8%);
+  --dsw-alias-border-l2: rgb(246 243 234 / 14%);
+  --dsw-alias-border-l3: rgb(246 243 234 / 20%);
+  --dsw-alias-border-l4: rgb(246 243 234 / 26%);
+  --dsw-alias-border-inverted: rgb(17 17 16 / 22%);
+  --dsw-alias-interactive-bg-hover: rgb(246 243 234 / 8%);
+  --dsw-alias-interactive-bg-active: rgb(246 243 234 / 13%);
+  --dsw-alias-interactive-bg-hover-solid: #23221b;
+  --dsw-specific-sidebar-nav-item-active: var(--we2-paper-0);
+  --dsw-specific-sidebar-nav-item-active-accent: var(--we2-paper-0);
+  --dsw-alias-button-primary-fill: var(--we2-paper-0);
+  --dsw-alias-button-primary-hover: #ffffff;
+  --dsw-alias-button-elevated-fill: #1b1a15;
+  --dsw-alias-button-floating-fill: #1b1a15;
+  --dsw-alias-button-floating-hover: #23221b;
+  --dsw-alias-button-ghost-active-fill: #23221b;
+  --dsw-alias-button-ghost-active-hover: #2b2a21;
+  --dsw-alias-button-ghost-active-border: var(--we2-paper-0);
+  --dsw-alias-scrollbar-bg-l1: rgb(246 243 234 / 18%);
+  --dsw-alias-scrollbar-bg-l2: rgb(246 243 234 / 22%);
+  --dsw-alias-scrollbar-hover-l1: rgb(246 243 234 / 34%);
+  --dsw-alias-scrollbar-hover-l2: rgb(246 243 234 / 34%);
+  --dsw-specific-menu: #1b1a15;
+  --dsw-alias-menu-group-header-fill: #23221b;
+  color-scheme: dark;
+  border-right: 1px solid rgb(246 243 234 / 12%);
+  position: relative;
+}
+
+/* Hover inverts the row: paper fill, ink label. The active row keeps the same
+   fill so the current session reads like a selected console line. */
+[class*='sidebarCol'] [class*='panelRow']:hover,
+[class*='sidebarCol'] [class*='panelRow'][class*='panelActive'],
+[class*='sidebarCol'] [class*='sessionRow']:hover,
+[class*='sidebarCol'] [class*='sessionRow'][class*='selected'],
+[class*='sidebarCol'] [class*='projectRow']:hover,
+[class*='sidebarCol'] [class*='searchResultRow']:hover,
+[class*='sidebarCol'] [class*='newSession']:hover,
+[class*='sidebarCol'] [class*='iconButton']:hover {
+  background: var(--we2-paper-0) !important;
+  color: var(--we2-ink-0) !important;
+}
+
+/* Everything inside a filled row inherits the ink label, including the row
+   actions that only appear while hovering. */
+[class*='sidebarCol'] [class*='panelRow']:hover *,
+[class*='sidebarCol'] [class*='panelRow'][class*='panelActive'] *,
+[class*='sidebarCol'] [class*='sessionRow']:hover *,
+[class*='sidebarCol'] [class*='sessionRow'][class*='selected'] *,
+[class*='sidebarCol'] [class*='projectRow']:hover *,
+[class*='sidebarCol'] [class*='searchResultRow']:hover *,
+[class*='sidebarCol'] [class*='newSession']:hover *,
+[class*='sidebarCol'] [class*='iconButton']:hover * {
+  color: inherit !important;
+}
+
+/* An icon button inside an already inverted row flips back to ink. */
+[class*='sidebarCol'] [class*='sessionRow']:hover [class*='iconButton']:hover,
+[class*='sidebarCol'] [class*='projectRow']:hover [class*='iconButton']:hover,
+[class*='sidebarCol'] [class*='panelRow']:hover [class*='iconButton']:hover {
+  background: var(--we2-ink-0) !important;
+  color: var(--we2-paper-0) !important;
+}
+
+/* ---------- 5b. Sidebar status reel --------------------------------------- */
+
+/* A transparent, pointer-free reel of console status lines that scrolls in the
+   sidebar's free area below the session list. client.js measures the free
+   space and hides the reel when the list reaches the footer. */
+.we2-ticker {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  overflow: hidden;
+  pointer-events: none;
+  background: transparent;
+  opacity: 0.82;
+  mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 84%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 84%, transparent);
+}
+
+.we2-ticker[data-visible='no'] {
+  display: none;
+}
+
+.we2-ticker-viewport {
+  overflow: hidden;
+}
+
+.we2-ticker-track {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+.we2-ticker-line {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 19px;
+  font-family: var(--ds-font-family-code);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  color: rgb(246 243 234 / 60%);
+}
+
+.we2-ticker-time {
+  flex: none;
+  color: rgb(246 243 234 / 26%);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}
+
+.we2-ticker-code {
+  flex: none;
+  color: rgb(246 243 234 / 30%);
+  font-size: 9px;
+}
+
+/* The trailing ellipsis blinks while the "instruction" runs, then holds. */
+.we2-ticker-ellipsis {
+  flex: none;
+  opacity: 0;
+}
+
+.we2-ticker-ellipsis[data-state='blinking'] {
+  opacity: 1;
+  animation: we2-ticker-ellipsis 0.72s steps(1, end) infinite;
+}
+
+.we2-ticker-ellipsis[data-state='idle'] {
+  opacity: 0.85;
+}
+
+.we2-ticker-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Marker: red while the line is typing, green once the entry completed. */
+.we2-ticker-dot {
+  flex: none;
+  width: 4px;
+  height: 4px;
+  background: var(--we2-signal);
+}
+
+.we2-ticker-dot[data-state='done'] {
+  background: #57a05f;
+}
+
+.we2-ticker-caret {
+  flex: none;
+  width: 4px;
+  height: 9px;
+  margin-left: 1px;
+  background: rgb(246 243 234 / 70%);
+  animation: we2-ticker-caret 0.9s steps(1, end) infinite;
+}
+
+@keyframes we2-ticker-caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes we2-ticker-ellipsis {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0.12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .we2-ticker-caret {
+    animation: none;
+  }
+
+  .we2-ticker-ellipsis[data-state='blinking'] {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Composer: console slab with a hairline frame and a hard bottom offset. */
+[class*='composerSeat'] [class*='card'],
+[class*='composerStack'] [class*='card'] {
+  box-shadow:
+    inset 0 0 0 1px var(--we2-rule-4),
+    0 2px 0 0 rgb(17 17 16 / 8%);
+}
+
+[class*='composerSeat'] [class*='card']:focus-within,
+[class*='composerStack'] [class*='card']:focus-within {
+  box-shadow:
+    inset 0 0 0 1px var(--we2-ink-0),
+    0 2px 0 0 rgb(17 17 16 / 12%);
+}
+
+/* Buttons keep their geometry; only the border weight is hardened. */
+button[class*='_button'],
+[class*='primary'][class*='_button'] {
+  letter-spacing: 0.02em;
+}
+
+/* ---------- 6. Request approval ------------------------------------------- */
+
+/* The approval panel normally occupies the composer row. Lift it into a
+   centred ink dialog: title bar, scrollable request, answers stacked at the
+   bottom. `data-approval-key` is the panel's own stable attribute. */
+[data-approval-key] {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgb(12 12 10 / 55%);
+}
+
+[data-approval-key] > div {
+  width: min(620px, 100%);
+  max-width: 620px;
+  background: var(--we2-ink-0);
+  border: 1px solid rgb(246 243 234 / 20%);
+  border-radius: 0;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 55%),
+    0 24px 60px rgb(0 0 0 / 40%);
+  color: var(--we2-paper-0);
+  overflow: hidden;
+}
+
+/* Header replaces the status strip: a centred, larger title bar. */
+[data-approval-key] > div::before {
+  content: '请求授权';
+  display: block;
+  padding: 17px 20px 16px;
+  background: rgb(246 243 234 / 5%);
+  border-bottom: 1px solid rgb(246 243 234 / 14%);
+  box-shadow: inset 3px 0 0 var(--we2-signal);
+  font: 600 16px/1.25 'Bahnschrift', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  letter-spacing: 0.26em;
+  /* The trailing letter-space would push centred text left; pad it back. */
+  text-indent: 0.26em;
+  text-align: center;
+  color: var(--we2-paper-0);
+}
+
+[data-approval-key] [class*='strip'] {
+  display: none;
+}
+
+[data-approval-key] [class*='body'] {
+  padding: 18px 20px 6px;
+  max-height: min(46vh, 380px);
+  overflow-y: auto;
+}
+
+[data-approval-key] [class*='headline'] {
+  color: var(--we2-paper-0);
+  font-size: 15px;
+  line-height: 24px;
+}
+
+[data-approval-key] [class*='command'] {
+  color: #b9b2a2;
+  font-family: var(--ds-font-family-code);
+  font-size: 12px;
+  line-height: 19px;
+}
+
+/* Answers: full-width rows, stacked at the bottom of the dialog. */
+[data-approval-key] [class*='actionRow'] {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 16px 20px 20px;
+  border-top: 1px solid rgb(246 243 234 / 12%);
+}
+
+[data-approval-key] [class*='actionRow'] > * {
+  width: 100%;
+  justify-content: center;
+}
+
+[data-approval-key] [class*='actionRow'] button {
+  background: var(--we2-paper-0) !important;
+  color: var(--we2-ink-0) !important;
+  border: 1px solid var(--we2-paper-0) !important;
+  box-shadow: none !important;
+  letter-spacing: 0.04em;
+}
+
+[data-approval-key] [class*='actionRow'] button:hover:not(:disabled) {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+/* Reject stays outlined until hover, then takes the signal colour. */
+[data-approval-key] [class*='actionRow'] [class*='reject'] {
+  background: transparent !important;
+  color: var(--we2-paper-0) !important;
+  border-color: rgb(246 243 234 / 30%) !important;
+}
+
+[data-approval-key] [class*='actionRow'] [class*='reject']:hover:not(:disabled) {
+  background: var(--we2-signal) !important;
+  border-color: var(--we2-signal) !important;
+  color: var(--we2-paper-0) !important;
+}
+
+/* ---------- 7. Hero code backdrop ---------------------------------------- */
+
+/* dsh-hero-code-backdrop paints the new-session wall; the skin only tunes its
+   reels so the code reads as a live console rather than a still. */
+.dsh-hcb-track {
+  animation-duration: 42s !important;
+}
+
+.dsh-hcb-column[data-lane='trailing'] .dsh-hcb-track {
+  animation-duration: 60s !important;
+}
+
+/* ---------- 8. HUD chrome ------------------------------------------------ */
+
+.we2-chrome {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  color: var(--we2-ink-0);
+  font-family: 'Bahnschrift', 'Consolas', 'Cascadia Mono', monospace;
+  contain: layout paint;
+}
+
+.we2-frame {
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgb(17 17 16 / 26%);
+  box-shadow: inset 0 0 0 1px rgb(246 243 234 / 40%);
+}
+
+.we2-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 0 solid rgb(17 17 16 / 62%);
+}
+
+.we2-corner-tl {
+  top: 4px;
+  left: 4px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+
+.we2-corner-tr {
+  top: 4px;
+  right: 4px;
+  border-top-width: 2px;
+  border-right-width: 2px;
+}
+
+.we2-corner-bl {
+  bottom: 4px;
+  left: 4px;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+}
+
+.we2-corner-br {
+  bottom: 4px;
+  right: 4px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}
+
+/* Edge rulers: short ticks pressed against the bezel. */
+.we2-ticks {
+  position: absolute;
+  top: 64px;
+  bottom: 64px;
+  width: 7px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(17 17 16 / 26%) 0 1px,
+    transparent 1px 16px
+  );
+  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+
+.we2-ticks-left {
+  left: 3px;
+}
+
+.we2-ticks-right {
+  right: 3px;
+  background-position-y: 8px;
+}
+
+/* Bezel plate: a tab cut into the top frame, centred where the window chrome
+   is empty. */
+.we2-plate {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 15px;
+  padding: 0 13px;
+  background: var(--we2-paper-1);
+  border: 1px solid rgb(17 17 16 / 22%);
+  font-size: 8.5px;
+  line-height: 1;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgb(17 17 16 / 55%);
+  white-space: nowrap;
+}
+
+.we2-sep {
+  width: 1px;
+  height: 7px;
+  background: rgb(17 17 16 / 26%);
+}
+
+.we2-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--we2-signal);
+  animation: we2-pulse 2.4s steps(1, end) infinite;
+}
+
+/* Grain and scanlines: the printed-console surface. */
+.we2-chrome::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      rgb(17 17 16 / 1.8%) 0 1px,
+      transparent 1px 4px
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.4'/%3E%3C/svg%3E");
+  background-size: auto, 180px 180px;
+  opacity: 0.09;
+}
+
+@keyframes we2-pulse {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    opacity: 0.18;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .we2-dot {
+    animation: none;
+  }
+}
+
+/* Narrow viewports drop the peripheral chrome so controls keep their space. */
+@media (max-width: 720px) {
+  .we2-ticks,
+  .we2-plate {
+    display: none;
+  }
+}

@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>WE2 console — design preview</title>
+<link rel="stylesheet" href="../src/theme.css" />
+<style>
+  /* Mock of the DSH chat composition, styled only through --dsw-* tokens so it
+     mirrors what the skin does inside the real app. */
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: var(--dsh-font-family-text);
+    font-size: 14px;
+    color: var(--dsw-alias-label-primary);
+    background: var(--dsw-alias-bg-base);
+    display: flex;
+    overflow: hidden;
+  }
+  .rail {
+    width: 264px; flex: none; position: relative;
+    background: var(--dsw-specific-sidebar-fill);
+    border-right: 1px solid var(--dsw-alias-border-l2);
+    display: flex; flex-direction: column; padding: 14px 12px; gap: 18px;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; padding: 4px 6px; }
+  .brand-mark {
+    width: 22px; height: 22px; border: 1px solid var(--dsw-alias-border-l4);
+    color: var(--dsw-alias-label-primary); display: grid; place-items: center;
+    font: 600 11px/1 'Bahnschrift', sans-serif; letter-spacing: .06em;
+  }
+  .brand-name { font: 600 13px/1.2 'Bahnschrift', sans-serif; letter-spacing: .18em; text-transform: uppercase; }
+  .brand-sub { font-size: 9px; letter-spacing: .22em; color: var(--dsw-alias-label-tertiary); text-transform: uppercase; }
+  .rail-label {
+    font-size: 9px; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--dsw-alias-label-caption); padding: 0 6px 6px;
+    border-bottom: 1px solid var(--dsw-alias-border-l2);
+  }
+  .rail-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 8px; font-size: 13px; color: var(--dsw-alias-label-secondary);
+    border-left: 2px solid transparent;
+  }
+  .rail-item.on, .rail-item.hover, .rail-item:hover { background: var(--we2-paper-0); color: var(--we2-ink-0); border-left-color: var(--we2-signal); }
+  .rail-item.on .t, .rail-item.hover .t, .rail-item:hover .t { color: var(--we2-ink-3); }
+  .rail-item .t { font-size: 9px; letter-spacing: .16em; color: var(--dsw-alias-label-caption); }
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  header {
+    height: 58px; flex: none; display: flex; align-items: center; gap: 14px;
+    padding: 0 26px; border-bottom: 1px solid var(--dsw-alias-border-l3);
+    background: var(--dsw-alias-bg-base);
+  }
+  header .title { font-size: 14px; font-weight: 600; }
+  header .meta { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--dsw-alias-label-caption); }
+  .pill {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--dsw-alias-border-l3); padding: 5px 10px;
+    font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--dsw-alias-label-secondary); background: var(--dsw-alias-bg-layer-1);
+  }
+  .pill .dot { width: 6px; height: 6px; background: var(--dsw-alias-state-success-primary); }
+  .chat { flex: 1; overflow: hidden; padding: 26px 0 0; }
+  .thread { width: 760px; max-width: calc(100% - 80px); margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+  .step { display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--dsw-alias-label-caption); }
+  .step::after { content: ''; flex: 1; height: 1px; background: var(--dsw-alias-border-l2); }
+  .step b { font: 600 10px/1 'Bahnschrift', sans-serif; letter-spacing: .2em; color: var(--dsw-alias-label-secondary); }
+  .assistant .markdown { font-size: 14px; line-height: 1.75; color: var(--dsw-alias-label-primary); }
+  .markdown h2 { font-size: 19px; line-height: 1.4; margin: 0 0 10px; }
+  .markdown p { margin: 0 0 12px; }
+  .markdown ul { margin: 0 0 12px; padding-left: 18px; color: var(--dsw-alias-label-secondary); }
+  .markdown li { margin: 4px 0; }
+  .markdown code { font-family: var(--dsh-font-family-code); font-size: .86em; }
+  .toolrow {
+    display: flex; align-items: center; gap: 10px; border: 1px solid var(--dsw-alias-border-l2);
+    background: var(--dsw-alias-bg-layer-1); padding: 7px 11px; font-size: 12px;
+    color: var(--dsw-alias-label-secondary);
+  }
+  .toolrow .name { font-family: var(--dsh-font-family-code); color: var(--dsw-alias-label-primary); }
+  .toolrow .ok { margin-left: auto; font-size: 10px; letter-spacing: .16em; color: var(--dsw-alias-state-success-primary); text-transform: uppercase; }
+  .md-code-block { background: var(--dsw-alias-markdown-code-block); overflow: hidden; }
+  .md-code-block .banner {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--dsw-alias-markdown-code-block-banner);
+    padding: 8px 14px; font: 11px/18px var(--dsh-font-family-code);
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--dsw-alias-label-secondary);
+  }
+  .md-code-block .fill { flex: 1; }
+  .md-code-block pre {
+    margin: 0; padding: 12px 16px; font: 12px/19px var(--dsh-font-family-code);
+    color: var(--shiki-foreground); white-space: pre; overflow: auto;
+  }
+  .tok-k { color: var(--shiki-token-keyword); }
+  .tok-f { color: var(--shiki-token-function); }
+  .tok-c { color: var(--shiki-token-comment); }
+  .tok-n { color: var(--shiki-token-constant); }
+  .userRow { display: flex; justify-content: flex-end; }
+  .userStack { max-width: 78%; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .bubble { padding: 10px 15px; font-size: 13.5px; line-height: 1.7; }
+  .composer { flex: none; padding: 6px 0 22px; }
+  .composerSeat { width: 760px; max-width: calc(100% - 80px); margin: 0 auto; }
+  .card {
+    background: var(--dsw-specific-input-major); border-radius: var(--dsw-radius-panel);
+    box-shadow: var(--dsw-elevation-soft); padding: 13px 16px 10px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .card .hint { color: var(--dsw-alias-label-tertiary); font-size: 13px; }
+  .card .bar { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--dsw-alias-border-l1); padding-top: 9px; }
+  .btn {
+    border: 1px solid var(--dsw-alias-border-l3); background: transparent;
+    color: var(--dsw-alias-label-secondary); padding: 4px 9px;
+    font: 11px/1.6 var(--dsh-font-family-text); letter-spacing: .06em;
+  }
+  .btn.primary { background: var(--dsw-alias-button-primary-fill); color: var(--dsw-alias-label-primary-inverted); border-color: var(--we2-ink-0); margin-left: auto; }
+</style>
+</head>
+<body>
+  <aside class="rail _sidebarCol_preview">
+    <div class="brand">
+      <div class="brand-mark">W</div>
+      <div>
+        <div class="brand-name">DeepSeek</div>
+        <div class="brand-sub">Harness / Terminal</div>
+      </div>
+    </div>
+    <div>
+      <div class="rail-label">Sessions</div>
+      <div class="rail-item on"><span>重构会话编排层</span><span class="t">NOW</span></div>
+      <div class="rail-item hover"><span>迁移持久化格式</span><span class="t">2H</span></div>
+      <div class="rail-item"><span>接入新的工具层</span><span class="t">1D</span></div>
+      <div class="rail-item"><span>排查构建流水线</span><span class="t">3D</span></div>
+    </div>
+    <div style="margin-top:auto">
+      <div class="rail-label">Workspace</div>
+      <div class="rail-item"><span>deepseek-harness</span><span class="t">D:\</span></div>
+    </div>
+
+    <div class="we2-ticker" data-visible="yes" style="bottom: 96px; height: 124px">
+      <div class="we2-ticker-viewport">
+        <div class="we2-ticker-track">
+          <div class="we2-ticker-line"><span class="we2-ticker-time">23:41:02</span><span class="we2-ticker-dot" data-state="done"></span><span class="we2-ticker-code">SYS.03</span><span class="we2-ticker-text">同步会话索引</span><span class="we2-ticker-ellipsis" data-state="idle">…</span></div>
+          <div class="we2-ticker-line"><span class="we2-ticker-time">23:41:05</span><span class="we2-ticker-dot" data-state="done"></span><span class="we2-ticker-code">SYS.04</span><span class="we2-ticker-text">解析上下文窗口</span><span class="we2-ticker-ellipsis" data-state="idle">…</span></div>
+          <div class="we2-ticker-line"><span class="we2-ticker-time">23:41:07</span><span class="we2-ticker-dot" data-state="done"></span><span class="we2-ticker-code">SYS.05</span><span class="we2-ticker-text">校验签名</span><span class="we2-ticker-ellipsis" data-state="idle">…</span></div>
+          <div class="we2-ticker-line"><span class="we2-ticker-time">23:41:11</span><span class="we2-ticker-dot" data-state="done"></span><span class="we2-ticker-code">SYS.06</span><span class="we2-ticker-text">预热模型缓存</span><span class="we2-ticker-ellipsis" data-state="idle">…</span></div>
+          <div class="we2-ticker-line"><span class="we2-ticker-time">23:41:14</span><span class="we2-ticker-dot" data-state="done"></span><span class="we2-ticker-code">SYS.07</span><span class="we2-ticker-text">扫描工作区</span><span class="we2-ticker-ellipsis" data-state="idle">…</span></div>
+          <div class="we2-ticker-line"><span class="we2-ticker-time">23:41:18</span><span class="we2-ticker-dot" data-state="typing"></span><span class="we2-ticker-code">SYS.08</span><span class="we2-ticker-text">校准时钟漂移</span><span class="we2-ticker-ellipsis" data-state="blinking">…</span></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header>
+      <div class="title">重构会话编排层</div>
+      <div class="meta">session 7f19 / agent loop</div>
+      <div class="pill"><span class="dot"></span>link stable</div>
+    </header>
+
+    <div class="chat">
+      <div class="thread">
+        <div class="step"><b>01</b> operator input</div>
+
+        <div class="userRow">
+          <div class="userStack">
+            <div class="bubble">把 <code>agent-loop</code> 的会话写入改成投影模型：每次追加事件后由投影重建状态，不要在渲染路径里扫描全量日志。</div>
+          </div>
+        </div>
+
+        <div class="step"><b>02</b> reasoning</div>
+
+        <div class="assistant">
+          <div class="markdown _markdown_1ypvv_5">
+            <h2>会话编排层改造方案</h2>
+            <p>现有链路在渲染路径上做 <code>fold</code>，长会话下成本随事件数线性增长。改为投影后，写入与读取各自持有独立状态，渲染只消费最终节点。</p>
+            <ul>
+              <li>事件写入保持追加语义，投影在 <code>markDirty</code> 的微任务批次里重建。</li>
+              <li>节点定义只声明 <code>match</code> 与 <code>update</code>，不再扩展中心调度器。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="toolrow">
+          <span class="name">read</span>
+          <span>packages/core/session/src/projection.ts</span>
+          <span class="ok">ok</span>
+        </div>
+
+        <div class="md-code-block">
+          <div class="banner" data-code-block-banner>
+            <span>typescript</span>
+            <span class="fill"></span>
+            <span>projection.ts</span>
+            <span>copy</span>
+          </div>
+          <pre><span class="tok-c">// rebuild the node state from the appended event window</span>
+<span class="tok-k">export function</span> <span class="tok-f">project</span>(definition, events) {
+  <span class="tok-k">let</span> state = definition.<span class="tok-f">initial</span>()
+  <span class="tok-k">for</span> (<span class="tok-k">const</span> event <span class="tok-k">of</span> events) {
+    <span class="tok-k">const</span> match = definition.<span class="tok-f">match</span>(event)
+    <span class="tok-k">if</span> (match) state = definition.<span class="tok-f">update</span>(state, match)
+  }
+  <span class="tok-k">return</span> <span class="tok-n">Object</span>.<span class="tok-f">freeze</span>(state)
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="composer">
+      <div class="composerSeat">
+        <div class="card">
+          <div class="hint">向 Agent 发送指令 · ⌘↵ 发送</div>
+          <div class="bar">
+            <button class="btn">attach</button>
+            <button class="btn">plan</button>
+            <button class="btn">model</button>
+            <button class="btn primary">send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="we2-chrome" aria-hidden="true">
+    <div class="we2-frame"></div>
+    <span class="we2-corner we2-corner-tl"></span>
+    <span class="we2-corner we2-corner-tr"></span>
+    <span class="we2-corner we2-corner-bl"></span>
+    <span class="we2-corner we2-corner-br"></span>
+    <div class="we2-ticks we2-ticks-left"></div>
+    <div class="we2-ticks we2-ticks-right"></div>
+    <div class="we2-plate">
+      <span class="we2-dot"></span>
+      <span>WE2 // OPS CONSOLE</span>
+      <span class="we2-sep"></span>
+      <span>550W</span>
+      <span class="we2-sep"></span>
+      <span>23:41:18</span>
+    </div>
+  </div>
+</body>
+</html>

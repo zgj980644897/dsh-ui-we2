@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>WE2 console — approval dialog preview</title>
+<link rel="stylesheet" href="../src/theme.css" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: var(--dsh-font-family-text);
+    font-size: 14px;
+    color: var(--dsw-alias-label-primary);
+    background: var(--dsw-alias-bg-base);
+    display: flex;
+    overflow: hidden;
+  }
+  .rail {
+    width: 264px; flex: none; background: var(--dsw-specific-sidebar-fill);
+    border-right: 1px solid var(--dsw-alias-border-l2);
+    padding: 14px 12px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .rail-label {
+    font-size: 9px; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--dsw-alias-label-caption); padding: 0 6px 6px;
+    border-bottom: 1px solid var(--dsw-alias-border-l2);
+  }
+  .rail-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 8px; font-size: 13px; color: var(--dsw-alias-label-secondary);
+    border-left: 2px solid transparent;
+  }
+  .rail-item.on { background: var(--we2-paper-0); color: var(--we2-ink-0); border-left-color: var(--we2-signal); }
+  .main { flex: 1; display: flex; flex-direction: column; }
+  header {
+    height: 58px; display: flex; align-items: center; gap: 14px; padding: 0 26px;
+    border-bottom: 1px solid var(--dsw-alias-border-l3);
+  }
+  header .title { font-size: 14px; font-weight: 600; }
+  header .meta { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--dsw-alias-label-caption); }
+  .thread { width: 760px; max-width: calc(100% - 80px); margin: 26px auto 0; color: var(--dsw-alias-label-secondary); line-height: 1.8; }
+
+  /* The component's own class names, so the skin's rules apply verbatim. */
+  .Zf6DNq_root {
+    padding: 8px 16px 12px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .Zf6DNq_card {
+    width: 100%; max-width: 748px;
+    border: 1px solid var(--dsw-alias-state-warn-secondary);
+    border-radius: var(--dsw-radius-xl);
+    background: var(--dsw-specific-input-major);
+    box-shadow: var(--dsw-shadow-lv2);
+    overflow: hidden;
+  }
+  .Zf6DNq_strip {
+    background: var(--dsw-alias-state-warn-tertiary);
+    color: var(--dsw-alias-state-warn-primary);
+    display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+    font-size: 13px; line-height: 18px;
+  }
+  .Zf6DNq_body { display: flex; flex-direction: column; gap: 6px; padding: 12px 16px 0; }
+  .Zf6DNq_headline { color: var(--dsw-alias-label-primary); font-size: 15px; font-weight: 500; line-height: 24px; }
+  .Zf6DNq_command { color: var(--dsw-alias-label-tertiary); font-family: var(--ds-font-family-code); font-size: 13px; line-height: 20px; }
+  .Zf6DNq_actionRow { justify-content: flex-end; gap: 8px; padding: 14px 16px; display: flex; }
+  .Zf6DNq_reject:hover:not(:disabled) {
+    background: var(--dsw-alias-interactive-bg-hover-danger);
+    color: var(--dsw-alias-state-error-primary);
+  }
+  /* The mock's button baseline mirrors the ui-primitives Button geometry. */
+  .prims { height: 34px; padding: 0 14px; border-radius: 0; font: inherit; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .prims.outline { background: transparent; border: 1px solid var(--dsw-alias-border-l3); color: var(--dsw-alias-label-primary); }
+  .prims.primary { background: var(--dsw-alias-button-primary-fill); border: 1px solid var(--dsw-alias-button-primary-fill); color: var(--dsw-alias-label-primary-inverted); }
+</style>
+</head>
+<body>
+  <aside class="rail _sidebarCol_preview">
+    <div class="rail-label">Sessions</div>
+    <div class="rail-item on"><span>重构会话编排层</span><span>NOW</span></div>
+    <div class="rail-item"><span>迁移持久化格式</span><span>2H</span></div>
+    <div class="rail-item"><span>接入新的工具层</span><span>1D</span></div>
+    <div class="rail-item"><span>排查构建流水线</span><span>3D</span></div>
+  </aside>
+  <main class="main">
+    <header>
+      <div class="title">重构会话编排层</div>
+      <div class="meta">session 7f19 / agent loop</div>
+    </header>
+    <div class="thread">
+      读取构建脚本后，需要执行一条命令来清理旧的构建目录。
+    </div>
+
+    <div class="Zf6DNq_root" data-approval-key="approval:1">
+      <div class="Zf6DNq_card">
+        <div class="Zf6DNq_strip"><span>●</span><span>等待授权</span></div>
+        <div class="Zf6DNq_body">
+          <div class="Zf6DNq_headline">允许执行命令以清理构建目录吗？</div>
+          <div class="Zf6DNq_command">bash -lc "rm -rf build &amp;&amp; npm run build"</div>
+        </div>
+        <div class="Zf6DNq_actionRow">
+          <button class="prims outline Zf6DNq_reject">拒绝</button>
+          <button class="prims primary">允许一次</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="we2-chrome" aria-hidden="true">
+    <div class="we2-frame"></div>
+    <span class="we2-corner we2-corner-tl"></span>
+    <span class="we2-corner we2-corner-tr"></span>
+    <span class="we2-corner we2-corner-bl"></span>
+    <span class="we2-corner we2-corner-br"></span>
+    <div class="we2-plate">
+      <span class="we2-dot"></span>
+      <span>WE2 // OPS CONSOLE</span>
+      <span class="we2-sep"></span>
+      <span>550W</span>
+      <span class="we2-sep"></span>
+      <span>23:41:07</span>
+    </div>
+  </div>
+</body>
+</html>
