@@ -86,12 +86,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Uninstall
 `lib/client.js` 与预览图都已提交，克隆下来即可安装。
 
 ```powershell
-git clone <你的仓库地址> dsh-ui-we2
+git clone https://github.com/zgj980644897/dsh-ui-we2.git
 cd dsh-ui-we2
 powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-也可以在仓库页选 **Code → Download ZIP**，解压后运行 `install.ps1`。
+也可以在 [github.com/zgj980644897/dsh-ui-we2](https://github.com/zgj980644897/dsh-ui-we2) 选 **Code → Download ZIP**，解压后运行 `install.ps1`。
 
 - 安装脚本只适用于 Windows（PowerShell）。macOS / Linux 用户改用下面的「方式二：手动」，
   把 `link:` 换成本机上的绝对路径即可，效果完全一样。
