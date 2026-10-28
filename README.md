@@ -1,5 +1,7 @@
 # dsh-ui-we2 · WE2 CONSOLE
 
+中文 | [English](README.en.md)
+
 **米白 / 墨黑 · 硬核科幻控制台皮肤** — DeepSeek Harness Web 客户端插件。
 以《流浪地球 2》里那套「纸白面板 + 墨黑机箱 + 信号红 + 细发丝线 + 等宽读数」的计算机界面语言重绘对话页：
 纸色正文区、墨黑侧栏（悬停反相为纸白）、墨黑色代码舱与操作员消息块、发丝级硬边框、零圆角、屏幕边框与刻度尺 HUD。
@@ -152,6 +154,10 @@ dsh-ui-we2/
 ├─ index.js                Host 空插件（无 import）
 ├─ cordis.patch.yml        bundle 挂载补丁
 ├─ install.ps1             安装 / 卸载（无 BOM 写入 + 校验）
+├─ README.md               中文说明
+├─ README.en.md            英文说明
+├─ LICENSE                 MIT
+├─ .gitignore
 ├─ src/
 │  ├─ theme.css            视觉系统（token 覆盖 + 组件细化 + HUD）
 │  └─ client.js            浏览器插件工厂体（带异常兜底）
