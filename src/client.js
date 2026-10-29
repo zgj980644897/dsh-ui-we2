@@ -480,12 +480,38 @@ function mountTicker(ctx) {
   }
 }
 
+/**
+ * Mirror context usage onto the portaled stat dialogs so the meter and its bar
+ * can report the near-full state at 90% and above.
+ * @returns the disposer stopping the watch.
+ */
+function watchContextUsage() {
+  const HOT = 90
+  const update = () => {
+    for (const node of document.querySelectorAll('[role="dialog"] [class*="_percent"]')) {
+      const value = Number.parseInt(node.textContent ?? '', 10)
+      const panel = node.closest('[role="dialog"]')
+      if (panel === null || !Number.isFinite(value)) continue
+      panel.dataset.we2Context = value >= HOT ? 'hot' : 'normal'
+    }
+    for (const button of document.querySelectorAll('button[aria-label*="%"]')) {
+      const match = /(\d+)\s*%/.exec(button.getAttribute('aria-label') ?? '')
+      if (match === null) continue
+      button.dataset.we2Context = Number.parseInt(match[1], 10) >= HOT ? 'hot' : 'normal'
+    }
+  }
+  update()
+  const timer = setInterval(update, 400)
+  return () => clearInterval(timer)
+}
+
 function apply(ctx) {
   if (typeof document === 'undefined') return
   install(ctx, 'document flag', mountFlag)
   install(ctx, 'theme stylesheet', mountStyles)
   install(ctx, 'console chrome', mountChrome)
   install(ctx, 'sidebar status reel', mountTicker)
+  install(ctx, 'context usage', watchContextUsage)
 }
 
 return { name: 'dsh-ui-we2', apply }

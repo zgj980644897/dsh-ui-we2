@@ -795,6 +795,88 @@ button[class*='_button'],
   color: var(--we2-paper-0) !important;
 }
 
+/* ---------- 6b. Composer stat dialogs ------------------------------------- */
+
+/* The "turns / steps" and context dialogs open as portaled ink panels. */
+[role='dialog'][class*='_panel'] {
+  background: var(--we2-ink-0);
+  color: var(--we2-paper-0);
+  border: 1px solid rgb(246 243 234 / 16%);
+  border-radius: 0;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 55%),
+    0 16px 40px rgb(0 0 0 / 38%);
+  backdrop-filter: none;
+}
+
+[role='dialog'][class*='_panel'] [class*='_title'],
+[role='dialog'][class*='_panel'] [class*='_figures'],
+[role='dialog'][class*='_panel'] [class*='_percent'] {
+  color: var(--we2-paper-0);
+}
+
+[role='dialog'][class*='_panel'] [class*='_titleRule'] {
+  border-top-color: rgb(246 243 234 / 16%);
+}
+
+[role='dialog'][class*='_panel'] [class*='_details'] {
+  color: rgb(246 243 234 / 55%);
+}
+
+[role='dialog'][class*='_panel'] [class*='_details'] dd,
+[role='dialog'][class*='_panel'] [class*='_row'] dd {
+  color: var(--we2-paper-0);
+}
+
+/* Machine readings: monospaced, tabular, tracked out. */
+[role='dialog'][class*='_panel'] dd,
+[role='dialog'][class*='_panel'] [class*='_figures'],
+[role='dialog'][class*='_panel'] [class*='_percent'],
+[role='dialog'][class*='_panel'] [class*='_titleValue'] {
+  font-family: var(--ds-font-family-code, 'Cascadia Mono', 'Consolas', monospace);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 8px rgb(246 243 234 / 14%);
+}
+
+/* Rows and readings invert to paper on hover. */
+[role='dialog'][class*='_panel'] [class*='_row']:hover,
+[role='dialog'][class*='_panel'] [class*='_details'] > dt:hover,
+[role='dialog'][class*='_panel'] [class*='_details'] > dt:hover + dd,
+[role='dialog'][class*='_panel'] [class*='_details'] > dd:hover {
+  background: var(--we2-paper-0);
+  color: var(--we2-ink-0);
+}
+
+[role='dialog'][class*='_panel'] [class*='_row']:hover dt,
+[role='dialog'][class*='_panel'] [class*='_row']:hover dd,
+[role='dialog'][class*='_panel'] [class*='_details'] > dt:hover a,
+[role='dialog'][class*='_panel'] [class*='_details'] > dt:hover + dd {
+  color: var(--we2-ink-0);
+}
+
+/* Context usage at or above 90% reports in the signal colour. */
+[role='dialog'][data-we2-context='hot'] [class*='_bar'] {
+  background: rgb(178 53 42 / 22%);
+}
+
+[role='dialog'][data-we2-context='hot'] [class*='_segment'] {
+  background: var(--we2-signal) !important;
+}
+
+[role='dialog'][data-we2-context='hot'] [class*='_percent'],
+[role='dialog'][data-we2-context='hot'] [class*='_figures'] {
+  color: var(--we2-signal);
+}
+
+button[data-we2-context='hot'] svg circle[class*='_fill'] {
+  stroke: var(--we2-signal);
+}
+
+button[data-we2-context='hot'] span {
+  color: var(--we2-signal);
+}
+
 /* ---------- 7. Hero code backdrop ---------------------------------------- */
 
 /* dsh-hero-code-backdrop paints the new-session wall; the skin only tunes its
