@@ -1,6 +1,6 @@
 {
   "name": "dsh-ui-we2",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "WE2 console: an off-white and ink future-industrial skin for the DeepSeek Harness web UI (paper surfaces, hard hairlines, HUD chrome)",
   "keywords": [
     "dsh-plugin",

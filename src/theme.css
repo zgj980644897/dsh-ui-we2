@@ -140,7 +140,7 @@ html body[data-ds-dark-theme] {
   --shiki-token-link: #8fb3c6;
 
   /* menus, overlays, composer */
-  --dsw-menu-surface-fill: var(--we2-paper-0);
+  --dsw-menu-surface-fill: var(--we2-ink-0);
   --dsw-menu-backdrop-filter: none;
   --dsw-specific-menu: var(--we2-paper-0);
   --dsw-alias-menu-group-header-fill: #f0ece0;
@@ -562,6 +562,15 @@ input,
 
 [role='menu'] [role='menuitem']:active {
   transform: translateY(1px);
+}
+
+/* The menu paints its surface through an inner material layer (z-index: -1)
+   that covers the surface's own background, so that layer needs the ink too. */
+[role='menu'] > [class*='material'],
+[data-menu-material] > [class*='material'],
+[role='menu'] > [data-menu-backing] {
+  background: var(--we2-ink-0) !important;
+  backdrop-filter: none !important;
 }
 
 /* ---------- 5a2. Modal dialogs -------------------------------------------- */
