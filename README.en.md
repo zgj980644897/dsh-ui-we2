@@ -25,7 +25,7 @@ status ticker, and a centred approval dialog.
 | **Geometry** | Every radius goes to zero (`--dsw-radius-*: 0`); elevation shadows become a 1px ink stroke plus a 1px hard offset; menus turn into opaque paper sheets with the blur removed. |
 | **Type** | UI text uses Bahnschrift (the DIN-style technical face shipped with Windows) plus Microsoft YaHei; code, timestamps and counters use Cascadia Mono / JetBrains Mono. |
 | **Sidebar** | An ink chassis. Hovering a session, project, panel tab, search result, the new-session button or an icon button inverts the row to **paper fill with ink text**; the selected session keeps that inversion. Row actions flip back to ink-on-paper inside an inverted row. |
-| **Status ticker** | The free space under the session list carries a live **log stream**. Each line starts with an `HH:MM:SS` timestamp, then a status light, a `SYS.xx` counter and a body typed **character by character**. When typing ends the trailing ellipsis **blinks for a random duration** to mimic instruction execution; only then does the light turn from **red** to **green**, and the reel scrolls up one line for the next entry. Typing speed, execution time and pauses all vary per line. The layer is **fully transparent and `pointer-events: none`**, so it never blocks or intercepts input; it hides itself when the list fills the space or the sidebar collapses to the icon rail. |
+| **Reasoning ticker** | The free space under the session list carries a live **reasoning log** mirrored from the current conversation's latest reasoning text (read through the `uiConversation` chat snapshot, not sample data). Each line starts with an `HH:MM:SS` timestamp and is typed **line by line, character by character**; the marker is **red** while the line prints and turns **green** once it finishes (or stops at a truncation). **Long lines never wrap**: printing stops at the rail width and the trailing ellipsis **keeps blinking** to signal more content. Switching sessions rebinds and restarts the log. The layer is **fully transparent and `pointer-events: none`**, so it never blocks or intercepts input; it hides itself when the list fills the space or the sidebar collapses to the icon rail, and stays quiet when there is no reasoning. |
 | **Conversation** | Operator messages become ink panels with a signal-red edge; code blocks become ink decks with a red-dot banner and a dedicated low-saturation syntax palette; inline code becomes an ink chip; headings carry a red index tick; quotes, tables and rules are hardened. |
 | **Approval dialog** | The composer takeover becomes a **centred ink dialog**: a centred 16px "请求授权" title bar with a red edge, a scrollable request body, and answers stacked vertically at the bottom (reject outlined, allow-once filled paper). |
 | **Code backdrop** | Speeds up the new-session code wall from `dsh-hero-code-backdrop` (96s / 138s → **42s / 60s**) so it reads as a live console rather than a still image. |
@@ -191,13 +191,17 @@ dsh-ui-we2/
   `userStack`, `bubble`, `markdown`, `md-code-block`, `[data-code-block-banner]`; the sidebar hover
   rules use `panelRow` / `sessionRow` / `projectRow` / `searchResultRow` / `newSession` / `iconButton`;
   the approval dialog uses `[data-approval-key]`.
-- The sidebar border and the status ticker depend on the `sidebarCol` container, plus `footArea`
+- The sidebar border and the reasoning ticker depend on the `sidebarCol` container, plus `footArea`
   (footer height) and `sessionRow` / `projectRow` / `panelRow` (lowest occupied point). When those
   hooks are absent the ticker stays hidden and the sidebar still colours through the tokens.
+- Reasoning text comes from a client service, not the DOM: the session id is read from
+  `[data-conversation-session]`, then the `uiConversation.binding(id).target('chat')` snapshot's
+  `order` / `nodes` supply the last `kind: 'reasoning'` block of `data.blocks` and its `text`.
+  All three are internal interfaces and need re-checking on a major DSH upgrade.
 - Each layout pass does one `getBoundingClientRect` measurement (rAF-batched, `ResizeObserver` plus a
   capture-phase scroll listener); no timer runs while idle. A cheap 1.5s re-attach check restores the
   ticker after the sidebar is replaced.
-- All typewriter, execution-blink and slide timers are registered in one set and cleared on dispose.
+- Typing, slide, and sync-debounce timers all live in one set and are cleared on dispose.
   With `prefers-reduced-motion: reduce` the typing and blinking animations do not start and the reel is
   filled statically.
 - The approval dialog uses `[data-approval-key]` for full-screen positioning (`position: fixed`). If a

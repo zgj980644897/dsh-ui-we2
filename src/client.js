@@ -98,7 +98,7 @@ function install(ctx, phase, mount) {
   try {
     ctx.effect(() => {
       try {
-        return mount()
+        return mount(ctx)
       } catch (error) {
         report(ctx, phase, error)
         return () => {}
@@ -109,36 +109,31 @@ function install(ctx, phase, mount) {
   }
 }
 
-/** Console status lines for the sidebar ticker: the skin's idle telemetry. */
-const TICKER_LINES = [
-  ['SYS.01', '加载中…'],
-  ['SYS.02', '权限获取中…'],
-  ['SYS.03', '同步会话索引…'],
-  ['SYS.04', '解析上下文窗口…'],
-  ['SYS.05', '校验签名…'],
-  ['SYS.06', '预热模型缓存…'],
-  ['SYS.07', '扫描工作区…'],
-  ['SYS.08', '校准时钟漂移…'],
-  ['SYS.09', '建立安全信道…'],
-  ['SYS.10', '等待指令…'],
-]
-
+/** One printed reasoning line's height, used by the scrolling window. */
 const TICKER_LINE_HEIGHT = 19
+/** How many printed lines the window keeps visible. */
 const TICKER_VISIBLE_LINES = 6
+/** Character cadence of the typewriter. */
+const TICKER_TICK_MS = 22
+/** Silence after which the newest line is reported complete. */
+const TICKER_IDLE_DONE_MS = 1500
+/** Coalescing delay for session and snapshot updates. */
+const TICKER_SYNC_DELAY_MS = 120
 
 /**
- * Mount the transparent status console into the sidebar's free area.
+ * Mount the transparent reasoning console into the sidebar's free area.
  *
- * Each line types itself out character by character: its marker is red while
- * typing, turns green when the line completes, and the reel then slides up by
- * one line for the next entry. Inter-character and inter-line delays are
- * jittered so no two lines take the same time.
- *
- * The console is decoration only: it takes no pointer input, paints no
- * background, and hides itself whenever the session list reaches the footer or
+ * The console mirrors the live reasoning text of the conversation on screen.
+ * Lines are printed one at a time, character by character; a line's marker is
+ * red while it prints and turns green once the line completes. A line that
+ * would overflow the rail stops printing and ends in a blinking ellipsis
+ * instead of wrapping. The layer paints no background and takes no pointer
+ * input, and it hides itself whenever the session list reaches the footer or
  * the sidebar is collapsed to the icon rail.
+ *
+ * @param ctx - owning Cordis context; `uiConversation` is read optionally.
  */
-function mountTicker() {
+function mountTicker(ctx) {
   const host = document.createElement('div')
   host.className = 'we2-ticker'
   host.dataset.dshWe2 = 'ticker'
@@ -158,7 +153,17 @@ function mountTicker() {
   let resize = null
   let frame = 0
   let stopped = false
-  let index = 0
+  let syncTimer = 0
+  let typingTimer = 0
+  let observer = null
+  let unsubscribe = null
+  let source = null
+  let sessionId = null
+  let parsed = []
+  let rendered = []
+  let renderIndex = 0
+  let active = null
+  let lastGrowth = 0
 
   const timers = new Set()
   const later = (fn, ms) => {
@@ -170,7 +175,228 @@ function mountTicker() {
     return id
   }
 
-  const schedule = () => {
+  /** `HH:MM:SS` stamp for one printed line. */
+  function clockText(date = new Date()) {
+    const pad = (value) => String(value).padStart(2, '0')
+    return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+  }
+
+  /** One console line: timestamp, marker, typed body, ellipsis, caret. */
+  function buildLine(time) {
+    const line = document.createElement('div')
+    line.className = 'we2-ticker-line'
+
+    const stamp = document.createElement('span')
+    stamp.className = 'we2-ticker-time'
+    stamp.textContent = time
+
+    const dot = document.createElement('span')
+    dot.className = 'we2-ticker-dot'
+    dot.dataset.state = 'typing'
+
+    const body = document.createElement('span')
+    body.className = 'we2-ticker-text'
+
+    const ellipsis = document.createElement('span')
+    ellipsis.className = 'we2-ticker-ellipsis'
+    ellipsis.textContent = '…'
+    ellipsis.dataset.state = 'hidden'
+
+    const caret = document.createElement('span')
+    caret.className = 'we2-ticker-caret'
+
+    line.append(stamp, dot, body, ellipsis, caret)
+    return { index: -1, line, dot, body, ellipsis, caret, target: '', printed: 0, truncated: false, done: false }
+  }
+
+  function ensureCaret(entry) {
+    if (entry.caret !== null) return
+    entry.caret = document.createElement('span')
+    entry.caret.className = 'we2-ticker-caret'
+    entry.line.appendChild(entry.caret)
+  }
+
+  /** Slide the reel up one line, dropping the oldest rendered entry. */
+  function slide() {
+    if (track.children.length <= TICKER_VISIBLE_LINES) return
+    const removed = track.firstElementChild
+    track.style.transition = 'transform 190ms cubic-bezier(0.2, 0.7, 0.2, 1)'
+    void track.offsetHeight
+    track.style.transform = `translateY(-${TICKER_LINE_HEIGHT}px)`
+    later(() => {
+      if (removed !== null) {
+        track.removeChild(removed)
+        for (let i = 0; i < rendered.length; i += 1) {
+          if (rendered[i] !== undefined && rendered[i].line === removed) rendered[i] = undefined
+        }
+      }
+      track.style.transition = 'none'
+      track.style.transform = 'translateY(0)'
+      void track.offsetHeight
+    }, 220)
+  }
+
+  /** Clear every printed line; used when a new reasoning text starts. */
+  function reset() {
+    parsed = []
+    rendered = []
+    renderIndex = 0
+    active = null
+    lastGrowth = 0
+    track.replaceChildren()
+    track.style.transition = 'none'
+    track.style.transform = 'translateY(0)'
+  }
+
+  /** Split reasoning markdown into printable, non-empty lines. */
+  function parse(text) {
+    const lines = []
+    for (const raw of text.split(/\r?\n/)) {
+      const line = raw.replace(/\s+/g, ' ').trim()
+      if (line !== '') lines.push(line)
+    }
+    return lines
+  }
+
+  /** Latest reasoning text of the chat target, or null when there is none. */
+  function reasoningText(snapshot) {
+    if (snapshot === null || snapshot === undefined) return null
+    const order = snapshot.order
+    const nodes = snapshot.nodes
+    if (!Array.isArray(order) || nodes === null || nodes === undefined || typeof nodes.get !== 'function') return null
+    for (let i = order.length - 1; i >= 0; i -= 1) {
+      const node = nodes.get(order[i])
+      const blocks = node?.data?.blocks
+      if (!Array.isArray(blocks)) continue
+      for (let j = blocks.length - 1; j >= 0; j -= 1) {
+        const block = blocks[j]
+        if (block?.kind !== 'reasoning') continue
+        const text = typeof block.text === 'string' ? block.text : ''
+        if (text.trim() !== '') return text
+      }
+    }
+    return null
+  }
+
+  /** Adopt the newest reasoning text, resuming a finished tail that grew. */
+  function adopt(text) {
+    if (text === null) return
+    const next = parse(text)
+    if (next.length === 0) return
+    if (parsed.length > 0 && next[0] !== rendered[0]?.target && next[0] !== parsed[0]) reset()
+    if (rendered[0] !== undefined && next[0] !== rendered[0].target) reset()
+    parsed = next
+
+    const last = rendered[rendered.length - 1]
+    if (last !== undefined && last.done && !last.truncated) {
+      const target = next[last.index]
+      if (target !== undefined && target.length > last.target.length) {
+        last.done = false
+        last.target = target
+        last.dot.dataset.state = 'typing'
+        ensureCaret(last)
+        renderIndex = last.index
+        active = null
+        lastGrowth = Date.now()
+      }
+    }
+  }
+
+  /** Print one character of the active line, then settle it when done. */
+  function tick() {
+    if (stopped) return
+    if (active === null) {
+      if (renderIndex >= parsed.length) return
+      const existing = rendered[renderIndex]
+      if (existing !== undefined) {
+        active = existing
+        ensureCaret(existing)
+        existing.dot.dataset.state = 'typing'
+      } else {
+        const built = buildLine(clockText())
+        built.index = renderIndex
+        built.target = parsed[renderIndex]
+        built.printed = 0
+        track.appendChild(built.line)
+        rendered[renderIndex] = built
+        active = built
+        slide()
+      }
+      lastGrowth = Date.now()
+    }
+
+    const line = active
+    const target = parsed[line.index] ?? line.target
+    line.target = target
+
+    if (!line.truncated && line.printed < target.length) {
+      line.printed += 1
+      line.body.textContent = target.slice(0, line.printed)
+      lastGrowth = Date.now()
+      if (line.body.scrollWidth > line.body.clientWidth + 1) line.truncated = true
+    }
+
+    const isLast = line.index === parsed.length - 1
+    if (line.truncated) finish(line)
+    else if (line.printed >= target.length) {
+      if (!isLast) finish(line)
+      else if (Date.now() - lastGrowth > TICKER_IDLE_DONE_MS) finish(line)
+    }
+  }
+
+  /** Report a printed line as complete: green marker, settled ellipsis. */
+  function finish(line) {
+    line.done = true
+    line.dot.dataset.state = 'done'
+    if (line.caret !== null) {
+      line.caret.remove()
+      line.caret = null
+    }
+    line.ellipsis.dataset.state = line.truncated ? 'blinking' : 'idle'
+    if (active === line) {
+      active = null
+      renderIndex = line.index + 1
+    }
+  }
+
+  /** Read the conversation on screen and follow its chat snapshot. */
+  function bindSession() {
+    const node = document.querySelector('[data-conversation-session]')
+    const id = node === null ? null : node.getAttribute('data-conversation-session')
+    if (id === sessionId && source !== null) return
+
+    if (unsubscribe !== null) {
+      unsubscribe()
+      unsubscribe = null
+    }
+    source = null
+    sessionId = id
+    if (id === null) return
+
+    const uiConversation = ctx.get('uiConversation')
+    if (uiConversation === undefined) return
+    try {
+      const binding = uiConversation.binding(id)
+      source = binding.target('chat')
+      unsubscribe = source.subscribe(() => scheduleSync())
+      scheduleSync()
+    } catch {
+      source = null
+    }
+  }
+
+  function scheduleSync() {
+    if (stopped || syncTimer !== 0) return
+    syncTimer = setTimeout(() => {
+      syncTimer = 0
+      if (stopped) return
+      bindSession()
+      if (source === null) return
+      adopt(reasoningText(source.getSnapshot()))
+    }, TICKER_SYNC_DELAY_MS)
+  }
+
+  const scheduleLayout = () => {
     if (frame !== 0) return
     frame = requestAnimationFrame(layout)
   }
@@ -200,110 +426,7 @@ function mountTicker() {
     host.dataset.visible = height >= 96 ? 'yes' : 'no'
   }
 
-  /** `HH:MM:SS` stamp for one log line. */
-  function clockText(date = new Date()) {
-    const pad = (value) => String(value).padStart(2, '0')
-    return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
-  }
-
-  /** One log line: timestamp, marker, counter, typed body, ellipsis, caret. */
-  function buildLine(code, time) {
-    const line = document.createElement('div')
-    line.className = 'we2-ticker-line'
-
-    const stamp = document.createElement('span')
-    stamp.className = 'we2-ticker-time'
-    stamp.textContent = time
-
-    const dot = document.createElement('span')
-    dot.className = 'we2-ticker-dot'
-    dot.dataset.state = 'typing'
-
-    const label = document.createElement('span')
-    label.className = 'we2-ticker-code'
-    label.textContent = code
-
-    const body = document.createElement('span')
-    body.className = 'we2-ticker-text'
-
-    const ellipsis = document.createElement('span')
-    ellipsis.className = 'we2-ticker-ellipsis'
-    ellipsis.textContent = '…'
-    ellipsis.dataset.state = 'hidden'
-
-    const caret = document.createElement('span')
-    caret.className = 'we2-ticker-caret'
-
-    line.append(stamp, dot, label, body, ellipsis, caret)
-    return { line, dot, body, ellipsis, caret }
-  }
-
-  /** Slide the reel up one line after a completed entry, then drop the oldest. */
-  function slide() {
-    if (track.children.length <= TICKER_VISIBLE_LINES) return
-    track.style.transition = 'transform 190ms cubic-bezier(0.2, 0.7, 0.2, 1)'
-    void track.offsetHeight
-    track.style.transform = `translateY(-${TICKER_LINE_HEIGHT}px)`
-    later(() => {
-      track.removeChild(track.firstElementChild)
-      track.style.transition = 'none'
-      track.style.transform = 'translateY(0)'
-      void track.offsetHeight
-    }, 220)
-  }
-
-  /** Type the next entry, then blink its ellipsis for an uneven exec time. */
-  function typeLine() {
-    if (stopped) return
-    const [code, full] = TICKER_LINES[index % TICKER_LINES.length]
-    index += 1
-    const text = full.replace(/…$/u, '')
-
-    const built = buildLine(code, clockText())
-    track.appendChild(built.line)
-    slide()
-
-    const charDelay = 14 + Math.random() * 22
-    const jitter = () => charDelay * (0.55 + Math.random() * 1.1)
-    let cursor = 0
-
-    const executing = () => {
-      built.caret.remove()
-      built.ellipsis.dataset.state = 'blinking'
-      // Different instructions take different time: 0.6–3.2 s of blinking
-      // before the marker reports the result.
-      later(() => {
-        built.ellipsis.dataset.state = 'idle'
-        built.dot.dataset.state = 'done'
-        later(typeLine, 320 + Math.random() * 420)
-      }, 600 + Math.random() * 2600)
-    }
-
-    const step = () => {
-      cursor += 1
-      built.body.textContent = text.slice(0, cursor)
-      if (cursor < text.length) later(step, jitter())
-      else executing()
-    }
-
-    later(step, 200 + Math.random() * 300)
-  }
-
-  const reducedMotion = document.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
-  const seeded = reducedMotion ? TICKER_VISIBLE_LINES : TICKER_VISIBLE_LINES - 1
-  for (let i = 0; i < seeded; i += 1) {
-    const [code, full] = TICKER_LINES[index % TICKER_LINES.length]
-    index += 1
-    const built = buildLine(code, clockText(new Date(Date.now() - (seeded - i) * 4200)))
-    built.body.textContent = full.replace(/…$/u, '')
-    built.ellipsis.dataset.state = 'idle'
-    built.caret.remove()
-    built.dot.dataset.state = 'done'
-    track.appendChild(built.line)
-  }
-  if (!reducedMotion) typeLine()
-
-  const bind = () => {
+  const attach = () => {
     const next = document.querySelector('[class*="sidebarCol"]')
     if (next === null) {
       host.remove()
@@ -312,23 +435,44 @@ function mountTicker() {
     if (next !== column) {
       resize?.disconnect()
       column = next
-      resize = new ResizeObserver(schedule)
+      resize = new ResizeObserver(scheduleLayout)
       resize.observe(column)
     }
     if (host.parentElement !== column) column.appendChild(host)
-    schedule()
+    scheduleLayout()
   }
 
-  bind()
-  const keep = setInterval(bind, 1500)
-  const onScroll = () => schedule()
+  attach()
+  bindSession()
+  typingTimer = setInterval(tick, TICKER_TICK_MS)
+  const keep = setInterval(() => {
+    attach()
+    scheduleSync()
+  }, 1500)
+
+  observer = new MutationObserver((records) => {
+    if (records.every((record) => host.contains(record.target))) return
+    scheduleSync()
+  })
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['data-conversation-session'],
+  })
+
+  const onScroll = () => scheduleLayout()
   document.addEventListener('scroll', onScroll, true)
 
   return () => {
     stopped = true
     for (const id of timers) clearTimeout(id)
     timers.clear()
+    clearInterval(typingTimer)
     clearInterval(keep)
+    if (syncTimer !== 0) clearTimeout(syncTimer)
+    observer?.disconnect()
+    unsubscribe?.()
     document.removeEventListener('scroll', onScroll, true)
     resize?.disconnect()
     if (frame !== 0) cancelAnimationFrame(frame)

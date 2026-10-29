@@ -487,8 +487,8 @@ input,
    space and hides the reel when the list reaches the footer. */
 .we2-ticker {
   position: absolute;
-  left: 16px;
-  right: 16px;
+  left: 10px;
+  right: 10px;
   overflow: hidden;
   pointer-events: none;
   background: transparent;
@@ -514,7 +514,7 @@ input,
 .we2-ticker-line {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 5px;
   height: 19px;
   font-family: var(--ds-font-family-code);
   font-size: 9.5px;
@@ -554,7 +554,7 @@ input,
 .we2-ticker-text {
   min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: clip;
 }
 
 /* Marker: red while the line is typing, green once the entry completed. */
