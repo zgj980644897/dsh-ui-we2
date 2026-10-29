@@ -663,7 +663,7 @@ button[class*='_button'],
   overflow: hidden;
 }
 
-/* Header replaces the status strip: a centred, larger title bar. */
+/* Header replaces the status strip: a centred, larger signal-red title bar. */
 [data-approval-key] > div::before {
   content: '请求授权';
   display: block;
@@ -676,7 +676,7 @@ button[class*='_button'],
   /* The trailing letter-space would push centred text left; pad it back. */
   text-indent: 0.26em;
   text-align: center;
-  color: var(--we2-paper-0);
+  color: var(--we2-signal);
 }
 
 [data-approval-key] [class*='strip'] {
