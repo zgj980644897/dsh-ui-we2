@@ -459,6 +459,41 @@ input,
   color: var(--we2-ink-0) !important;
 }
 
+/* Session rows wipe their paper fill in from the left, the same selection move
+   the menus and the startup screen use. */
+[class*='sidebarCol'] [class*='sessionRow'] {
+  position: relative;
+  overflow: hidden;
+}
+
+[class*='sidebarCol'] [class*='sessionRow']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: var(--we2-paper-0);
+  transform: translateX(-101%);
+  transition: transform 300ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+[class*='sidebarCol'] [class*='sessionRow']:hover::before,
+[class*='sidebarCol'] [class*='sessionRow'][class*='selected']::before,
+[class*='sidebarCol'] [class*='sessionRow'][aria-current]::before {
+  transform: none;
+}
+
+[class*='sidebarCol'] [class*='sessionRow'] > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* The wipe paints the fill, so the row itself stays transparent. */
+[class*='sidebarCol'] [class*='sessionRow']:hover,
+[class*='sidebarCol'] [class*='sessionRow'][class*='selected'] {
+  background: transparent !important;
+}
+
 /* Everything inside a filled row inherits the ink label, including the row
    actions that only appear while hovering. */
 [class*='sidebarCol'] [class*='panelRow']:hover *,
