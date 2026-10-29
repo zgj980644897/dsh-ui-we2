@@ -573,44 +573,25 @@ input,
   backdrop-filter: none !important;
 }
 
-/* ---------- 5a2. Modal dialogs -------------------------------------------- */
+/* ---------- 5a2. Dialog selections ---------------------------------------- */
 
-/* Settings and every other `aria-modal` dialog share the menu surface: ink
-   paper-free panel, paper text. Text inherits that paper unless it sits inside
-   a button, so control labels keep their own contrast. */
-[role='dialog'] {
-  background: var(--we2-ink-0) !important;
-  color: var(--we2-paper-0) !important;
-  border: 1px solid rgb(246 243 234 / 16%) !important;
-  border-radius: 0 !important;
-  box-shadow:
-    0 0 0 1px rgb(0 0 0 / 50%),
-    0 24px 60px rgb(0 0 0 / 40%) !important;
-  backdrop-filter: none !important;
-}
-
-[role='dialog'] :is(h1, h2, h3, h4, h5, h6, p, span, label, dt, dd, li, strong, em, small):not(button *) {
-  color: inherit !important;
-}
-
-[role='dialog'] a {
-  color: #e2c79b !important;
-}
-
-/* A selected section or row inverts to paper with ink text. */
+/* Settings keeps the light surface; only the row or control under the pointer
+   (or the current section) inverts to ink with paper text. */
+[role='dialog'] :is([role='tab'], [role='option'], [role='menuitem'], [role='button'], [aria-current]):hover,
 [role='dialog'] [aria-selected='true'],
 [role='dialog'] [aria-current='page'],
 [role='dialog'] [data-selected='true'],
 [role='dialog'] [aria-pressed='true'] {
-  background: var(--we2-paper-0) !important;
-  color: var(--we2-ink-0) !important;
+  background: var(--we2-ink-0) !important;
+  color: var(--we2-paper-0) !important;
 }
 
+[role='dialog'] :is([role='tab'], [role='option'], [role='menuitem'], [role='button'], [aria-current]):hover *,
 [role='dialog'] [aria-selected='true'] *,
 [role='dialog'] [aria-current='page'] *,
 [role='dialog'] [data-selected='true'] *,
 [role='dialog'] [aria-pressed='true'] * {
-  color: var(--we2-ink-0) !important;
+  color: var(--we2-paper-0) !important;
 }
 
 /* ---------- 5b. Running-session reactor ----------------------------------- */
