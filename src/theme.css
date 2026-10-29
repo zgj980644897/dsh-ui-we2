@@ -480,7 +480,91 @@ input,
   color: var(--we2-paper-0) !important;
 }
 
-/* ---------- 5a. Running-session reactor ----------------------------------- */
+/* ---------- 5a. Menus ----------------------------------------------------- */
+
+/* Menu surfaces are always ink, wherever they mount: a portal keeps the paper
+   body tokens while an inline menu inherits the sidebar's ink tokens, so the
+   colours are forced instead of inherited. Labels are paper; the active row
+   wipes a paper panel in from the left and flips its text to ink, the same
+   selection move the startup screen uses for its confirm button. */
+[role='menu'],
+[data-menu-material] {
+  background: var(--we2-ink-0) !important;
+  color: var(--we2-paper-0) !important;
+  border: 1px solid rgb(246 243 234 / 16%) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 45%),
+    0 14px 34px rgb(0 0 0 / 38%) !important;
+  backdrop-filter: none !important;
+}
+
+[role='menu'] [role='separator'] {
+  background: rgb(246 243 234 / 14%) !important;
+}
+
+[role='menu'] [role='menuitem'] {
+  position: relative;
+  overflow: hidden;
+  color: var(--we2-paper-0) !important;
+  transition: color 220ms ease;
+}
+
+[role='menu'] [role='menuitem'] * {
+  color: inherit !important;
+}
+
+[role='menu'] [role='menuitem']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--we2-paper-0);
+  transform: translateX(-101%);
+  transition: transform 300ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+[role='menu'] [role='menuitem']:hover::before,
+[role='menu'] [role='menuitem']:focus-visible::before,
+[role='menu'] [role='menuitem'][aria-current='page']::before,
+[role='menu'] [role='menuitem'][aria-checked='true']::before,
+[role='menu'] [role='menuitem'][data-selected]::before {
+  transform: none;
+}
+
+[role='menu'] [role='menuitem']:hover,
+[role='menu'] [role='menuitem']:focus-visible,
+[role='menu'] [role='menuitem'][aria-current='page'],
+[role='menu'] [role='menuitem'][aria-checked='true'],
+[role='menu'] [role='menuitem'][data-selected] {
+  color: var(--we2-ink-0) !important;
+}
+
+/* Danger rows keep the signal colour in both states. */
+[role='menu'] [role='menuitem'][class*='danger'],
+[role='menu'] [role='menuitem'][class*='danger'] * {
+  color: var(--we2-signal) !important;
+}
+
+[role='menu'] [role='menuitem'][class*='danger']:hover::before {
+  background: var(--we2-signal);
+}
+
+[role='menu'] [role='menuitem'][class*='danger']:hover,
+[role='menu'] [role='menuitem'][class*='danger']:hover * {
+  color: var(--we2-paper-0) !important;
+}
+
+[role='menu'] [role='menuitem'] > * {
+  position: relative;
+  z-index: 1;
+}
+
+[role='menu'] [role='menuitem']:active {
+  transform: translateY(1px);
+}
+
+/* ---------- 5b. Running-session reactor ----------------------------------- */
 
 /* The stock running indicator is one rotating dashed arc. Here the same SVG
    becomes two counter-rotating rings: a fine outer tick ring turning clockwise
