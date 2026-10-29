@@ -105,6 +105,18 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
   `[data-approval-key]` 等）在新版本里改了名，对应那一小块装饰会退回默认样式，
   但**不会影响应用启动或对话功能**。
 
+### 更新（一键）
+
+插件推送新版本后，已安装的用户不需要重新下载：
+
+- **双击 `update.cmd`**（Windows）：脚本会判断这个目录是怎么来的 ——
+  是 `git clone` 就执行 `git pull --ff-only`，是 ZIP 解压就下载最新源码包覆盖本目录；
+  然后自动重跑 `install.ps1`，打印版本变化（例如 `0.8.0 -> 0.9.0`），最后提示重启。
+- 或命令行：`powershell -NoProfile -ExecutionPolicy Bypass -File .\update.ps1`
+- 或完全手动：`git pull`（或重新下载 ZIP）后重跑 `install.ps1`。
+
+更新后**重启 DeepSeek Harness** 生效；HUD 顶部铭牌会显示当前版本（`550W · v0.9.0`），
+可以用来确认更新是否生效。
 ### 方式二：手动
 
 ```json

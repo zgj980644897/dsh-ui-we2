@@ -1,6 +1,6 @@
 {
   "name": "dsh-ui-we2",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "WE2 console: an off-white and ink future-industrial skin for the DeepSeek Harness web UI (paper surfaces, hard hairlines, HUD chrome)",
   "keywords": [
     "dsh-plugin",
@@ -30,6 +30,9 @@
     "index.js",
     "lib/client.js",
     "cordis.patch.yml",
+    "install.ps1",
+    "update.ps1",
+    "update.cmd",
     "README.md",
     "README.en.md"
   ],

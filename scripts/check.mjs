@@ -26,6 +26,8 @@ expect(/^window\.__ModuleLoader__\.load\(\{/m.test(bundle), 'bundle must registe
 expect((bundle.match(/__ModuleLoader__\.load\(/g) ?? []).length === 1, 'bundle must register exactly once')
 expect(bundle.includes(`id: 'dsh-ui-we2'`), 'bundle id must equal the package name')
 expect(!bundle.includes('__WE2_CSS__'), 'stylesheet placeholder was not substituted')
+expect(!bundle.includes('__WE2_VERSION__'), 'version placeholder was not substituted')
+expect(bundle.includes(`const WE2_VERSION = '${manifest.version}'`), 'bundle must carry the current package version')
 expect(bundle.includes('function apply(ctx)'), 'bundle must export an apply function')
 expect(bundle.includes("typeof document === 'undefined'"), 'apply must guard a document-less environment')
 expect(bundle.trimEnd().endsWith('})'), 'bundle must close the module-table registration')

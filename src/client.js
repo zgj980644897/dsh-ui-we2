@@ -7,6 +7,7 @@
    disposer; the rest of the application keeps running unchanged. */
 
 const WE2_CSS = __WE2_CSS__
+const WE2_VERSION = '__WE2_VERSION__'
 
 const CHROME_CLASS = 'we2-chrome'
 
@@ -22,7 +23,7 @@ const CHROME_MARKUP = [
   '<span class="we2-dot"></span>',
   '<span>WE2 // OPS CONSOLE</span>',
   '<span class="we2-sep"></span>',
-  '<span>550W</span>',
+  '<span>550W · v' + WE2_VERSION + '</span>',
   '<span class="we2-sep"></span>',
   '<span data-we2-clock>--:--:--</span>',
   '</div>',

@@ -112,6 +112,19 @@ after extracting.
   `md-code-block`, `[data-approval-key]`, …) is renamed in a future version, that one decoration falls
   back to the default style, but **startup and conversation behaviour are unaffected**.
 
+### Update (one click)
+
+Installed users do not need to download anything again after a release:
+
+- **Double-click `update.cmd`** (Windows). It detects how this folder was installed —
+  a `git clone` is updated with `git pull --ff-only`, a ZIP extraction downloads the
+  latest source archive over this folder — then reruns `install.ps1`, prints the
+  version change (for example `0.8.0 -> 0.9.0`) and asks for a restart.
+- Or from a shell: `powershell -NoProfile -ExecutionPolicy Bypass -File .\update.ps1`
+- Or fully manual: `git pull` (or a fresh ZIP) followed by `install.ps1`.
+
+**Restart DeepSeek Harness** afterwards. The HUD plate shows the running version
+(`550W · v0.9.0`), which is the quickest way to confirm an update landed.
 ### Option 2: manual
 
 ```json
