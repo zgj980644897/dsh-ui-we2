@@ -480,6 +480,59 @@ input,
   color: var(--we2-paper-0) !important;
 }
 
+/* ---------- 5a. Running-session reactor ----------------------------------- */
+
+/* The stock running indicator is one rotating dashed arc. Here the same SVG
+   becomes two counter-rotating rings: a fine outer tick ring turning clockwise
+   and a signal-red inner arc turning the other way. */
+[class*='sidebarCol'] svg[data-state='ongoing'] g[class*='spinnerMotion'] {
+  animation: none;
+}
+
+[class*='sidebarCol'] svg[data-state='ongoing'] circle[class*='spinnerTrack'] {
+  r: 9.2px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  opacity: 0.5;
+  stroke-width: 1.1;
+  stroke-dasharray: 1.6 2.6;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: we2-reactor-outer 3.6s linear infinite;
+}
+
+[class*='sidebarCol'] svg[data-state='ongoing'] circle[class*='spinnerArc'] {
+  r: 5.2px;
+  fill: none;
+  stroke: var(--we2-signal);
+  stroke-linecap: round;
+  stroke-width: 1.8;
+  stroke-dasharray: 7 5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: we2-reactor-inner 1.4s linear infinite;
+}
+
+@keyframes we2-reactor-outer {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes we2-reactor-inner {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [class*='sidebarCol'] svg[data-state='ongoing'] circle[class*='spinnerTrack'],
+  [class*='sidebarCol'] svg[data-state='ongoing'] circle[class*='spinnerArc'] {
+    animation: none;
+  }
+}
+
 /* ---------- 5b. Sidebar status reel --------------------------------------- */
 
 /* A transparent, pointer-free reel of console status lines that scrolls in the

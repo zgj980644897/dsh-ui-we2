@@ -44,6 +44,7 @@
   .rail-item.on, .rail-item.hover, .rail-item:hover { background: var(--we2-paper-0); color: var(--we2-ink-0); border-left-color: var(--we2-signal); }
   .rail-item.on .t, .rail-item.hover .t, .rail-item:hover .t { color: var(--we2-ink-3); }
   .rail-item .t { font-size: 9px; letter-spacing: .16em; color: var(--dsw-alias-label-caption); }
+  .rail-item .grow { flex: 1; margin-left: 6px; }
   .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
   header {
     height: 58px; flex: none; display: flex; align-items: center; gap: 14px;
@@ -125,7 +126,15 @@
     </div>
     <div>
       <div class="rail-label">Sessions</div>
-      <div class="rail-item on"><span>重构会话编排层</span><span class="t">NOW</span></div>
+      <div class="rail-item on">
+        <svg class="_spinner_1i3xo_37" data-state="ongoing" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+          <g class="_spinnerMotion_1i3xo_42">
+            <circle class="_spinnerTrack_1i3xo_47" cx="12" cy="12" r="9.5"></circle>
+            <circle class="_spinnerArc_1i3xo_48" cx="12" cy="12" r="9.5"></circle>
+          </g>
+        </svg>
+        <span class="grow">重构会话编排层</span><span class="t">NOW</span>
+      </div>
       <div class="rail-item hover"><span>迁移持久化格式</span><span class="t">2H</span></div>
       <div class="rail-item"><span>接入新的工具层</span><span class="t">1D</span></div>
       <div class="rail-item"><span>排查构建流水线</span><span class="t">3D</span></div>
