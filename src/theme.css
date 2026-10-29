@@ -841,26 +841,7 @@ button[class*='_button'],
     0 24px 60px rgb(0 0 0 / 40%);
   color: var(--we2-paper-0);
   overflow: hidden;
-  animation:
-    we2-approval-in 280ms cubic-bezier(0.2, 0.9, 0.25, 1) both,
-    we2-approval-jitter 560ms steps(1, end) 300ms 1 both,
-    we2-approval-flicker 560ms steps(1, end) 300ms 1 both;
-}
-
-/* Signal-loss bands and a scan tear, painted over the frame for half a second. */
-[data-approval-key] > div::after {
-  content: '';
-  position: absolute;
-  inset: -8px;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(to bottom, rgb(178 53 42 / 30%) 0 2px, transparent 2px 6px),
-    repeating-linear-gradient(to bottom, rgb(246 243 234 / 16%) 0 1px, transparent 1px 3px),
-    linear-gradient(to bottom, transparent 0 58%, rgb(246 243 234 / 22%) 58% 59.2%, transparent 59.2%);
-  box-shadow: inset 0 0 18px rgb(178 53 42 / 30%);
-  mix-blend-mode: screen;
-  opacity: 0;
-  animation: we2-approval-noise 560ms steps(1, end) 300ms 1 both;
+  animation: we2-approval-in 280ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
 }
 
 @keyframes we2-approval-scrim {
@@ -890,104 +871,9 @@ button[class*='_button'],
   }
 }
 
-@keyframes we2-approval-jitter {
-  0% {
-    translate: 0 0;
-  }
-
-  10% {
-    translate: -2px 1px;
-  }
-
-  20% {
-    translate: 3px -1px;
-  }
-
-  30% {
-    translate: -3px 0;
-  }
-
-  40% {
-    translate: 2px 1px;
-  }
-
-  50% {
-    translate: -1px -1px;
-  }
-
-  60% {
-    translate: 1px 0;
-  }
-
-  70% {
-    translate: -1px 1px;
-  }
-
-  100% {
-    translate: 0 0;
-  }
-}
-
-@keyframes we2-approval-flicker {
-  0%,
-  48%,
-  100% {
-    filter: none;
-  }
-
-  8%,
-  32% {
-    filter: brightness(1.35) contrast(1.08);
-  }
-
-  20%,
-  40% {
-    filter: brightness(0.82);
-  }
-}
-
-@keyframes we2-approval-noise {
-  0%,
-  100% {
-    opacity: 0;
-    transform: translateY(0);
-  }
-
-  12% {
-    opacity: 0.85;
-    transform: translateY(-2px);
-  }
-
-  24% {
-    opacity: 0.2;
-    transform: translateY(1px);
-  }
-
-  36% {
-    opacity: 0.7;
-    transform: translateY(-1px);
-  }
-
-  48% {
-    opacity: 0.1;
-    transform: translateY(0);
-  }
-
-  60% {
-    opacity: 0.55;
-    transform: translateY(1px);
-  }
-
-  72% {
-    opacity: 0;
-    transform: translateY(0);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   [data-approval-key],
-  [data-approval-key] > div,
-  [data-approval-key] > div::after {
+  [data-approval-key] > div {
     animation: none;
   }
 }
