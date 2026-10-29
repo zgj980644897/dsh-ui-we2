@@ -513,36 +513,6 @@ function watchContextUsage() {
   return () => clearInterval(timer)
 }
 
-/**
- * Keep the stock settings dialog native: while it is open the skin stylesheet
- * is paused, so every rule this plugin adds stops applying inside and behind
- * the modal. The stylesheet returns as soon as the dialog closes.
- * @returns the disposer that stops watching and restores the skin.
- */
-function watchSettingsSurface() {
-  let queued = false
-  const sync = () => {
-    if (stylesTag === null) return
-    const open = document.querySelector('[data-shortcut-modal="settings"]') !== null
-    if (stylesTag.disabled !== open) stylesTag.disabled = open
-  }
-  const schedule = () => {
-    if (queued) return
-    queued = true
-    queueMicrotask(() => {
-      queued = false
-      sync()
-    })
-  }
-  sync()
-  const observer = new MutationObserver(schedule)
-  observer.observe(document.body, { childList: true, subtree: true })
-  return () => {
-    observer.disconnect()
-    if (stylesTag !== null) stylesTag.disabled = false
-  }
-}
-
 function apply(ctx) {
   if (typeof document === 'undefined') return
   install(ctx, 'document flag', mountFlag)
@@ -550,7 +520,6 @@ function apply(ctx) {
   install(ctx, 'console chrome', mountChrome)
   install(ctx, 'sidebar status reel', mountTicker)
   install(ctx, 'context usage', watchContextUsage)
-  install(ctx, 'settings surface', watchSettingsSurface)
 }
 
 return { name: 'dsh-ui-we2', apply }
