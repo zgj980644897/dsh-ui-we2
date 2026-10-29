@@ -47,12 +47,12 @@
       },
       "versions": [
         {
-          "version": "0.12.2",
-          "publishTimestamp": 1793283971,
+          "version": "0.12.3",
+          "publishTimestamp": 1793284285,
           "source": {
             "type": "git",
             "url": "https://github.com/zgj980644897/dsh-ui-we2",
-            "commit": "ca166da222a9075d2b50f9a01dd18ee966572517"
+            "commit": "1b6293940aac1d219b826362a949fe3f4d7a4342"
           },
           "engines": {
             "dsh": ">=0.2.1-rc.3"
