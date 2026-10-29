@@ -41,13 +41,20 @@ function clearStale(selector) {
   for (const node of document.querySelectorAll(selector)) node.remove()
 }
 
+/** The live skin stylesheet, kept so the stock settings modal can pause it. */
+let stylesTag = null
+
 function mountStyles() {
   clearStale('style[data-dsh-we2="theme"]')
   const tag = document.createElement('style')
   tag.dataset.dshWe2 = 'theme'
   tag.textContent = WE2_CSS
   document.head.appendChild(tag)
-  return () => { tag.remove() }
+  stylesTag = tag
+  return () => {
+    stylesTag = null
+    tag.remove()
+  }
 }
 
 function mountChrome() {
@@ -506,6 +513,36 @@ function watchContextUsage() {
   return () => clearInterval(timer)
 }
 
+/**
+ * Keep the stock settings dialog native: while it is open the skin stylesheet
+ * is paused, so every rule this plugin adds stops applying inside and behind
+ * the modal. The stylesheet returns as soon as the dialog closes.
+ * @returns the disposer that stops watching and restores the skin.
+ */
+function watchSettingsSurface() {
+  let queued = false
+  const sync = () => {
+    if (stylesTag === null) return
+    const open = document.querySelector('[data-shortcut-modal="settings"]') !== null
+    if (stylesTag.disabled !== open) stylesTag.disabled = open
+  }
+  const schedule = () => {
+    if (queued) return
+    queued = true
+    queueMicrotask(() => {
+      queued = false
+      sync()
+    })
+  }
+  sync()
+  const observer = new MutationObserver(schedule)
+  observer.observe(document.body, { childList: true, subtree: true })
+  return () => {
+    observer.disconnect()
+    if (stylesTag !== null) stylesTag.disabled = false
+  }
+}
+
 function apply(ctx) {
   if (typeof document === 'undefined') return
   install(ctx, 'document flag', mountFlag)
@@ -513,6 +550,7 @@ function apply(ctx) {
   install(ctx, 'console chrome', mountChrome)
   install(ctx, 'sidebar status reel', mountTicker)
   install(ctx, 'context usage', watchContextUsage)
+  install(ctx, 'settings surface', watchSettingsSurface)
 }
 
 return { name: 'dsh-ui-we2', apply }
