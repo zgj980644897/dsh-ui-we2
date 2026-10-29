@@ -140,6 +140,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 `package.json` 里已声明 `dsh.bundle.patch → ./cordis.patch.yml`。把包加进 profile 的
 `dsh.profile.bundles` 即可由 bundle 机制自动挂载（不要再手写 `insert`，否则 id 重复）。
 
+## 插件市场 / 索引源
+
+- **自托管索引**：`https://raw.githubusercontent.com/zgj980644897/dsh-ui-we2/main/market/index.json`
+  在 DSH 里打开 **插件 → 实验性插件 → 自定义插件市场**，到 **发现 → 添加索引源** 粘贴该地址，
+  就能在发现页看到本皮肤并一键安装（索引格式 1，已用官方校验器验证）。
+- 已向社区插件市场 [dshopen.org](https://dshopen.org/zh/)（仓库 `polang233/dsh-plugin-index`）
+  提交收录申请；审核通过后也可以直接用它的索引安装。
 ## 开发
 
 ```powershell

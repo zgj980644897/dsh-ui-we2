@@ -149,6 +149,13 @@ Copy this directory to `<DSH_HOME>/profiles/desktop/node_modules/dsh-ui-we2`, th
 `dsh.profile.bundles` and the bundle mechanism mounts it automatically (do not also write an `insert`
 row, or the id will be duplicated).
 
+## Plugin market / index source
+
+- **Self-hosted index**: `https://raw.githubusercontent.com/zgj980644897/dsh-ui-we2/main/market/index.json`
+  Open **Plugins → Experimental plugins → Custom plugin market** in DSH, then **Discover → Add index source**
+  and paste that URL to browse and install this skin (format 1, validated with the official validator).
+- A listing request has been submitted to the community market [dshopen.org](https://dshopen.org/zh/)
+  (`polang233/dsh-plugin-index`); once accepted it can also be installed from that index.
 ## Development
 
 ```powershell

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="WE2 Console">
+  <rect width="256" height="256" fill="#111110"/>
+  <g fill="none" stroke-linecap="butt" transform="rotate(-18 128 128)">
+    <circle cx="128" cy="128" r="92" stroke="#fdfcf8" stroke-opacity="0.42" stroke-width="5" stroke-dasharray="7 15"/>
+    <circle cx="128" cy="128" r="58" stroke="#b2352a" stroke-width="13" stroke-dasharray="196 400"/>
+    <circle cx="128" cy="128" r="28" stroke="#fdfcf8" stroke-opacity="0.28" stroke-width="2"/>
+  </g>
+  <g fill="#b2352a">
+    <rect x="126" y="18" width="4" height="14"/>
+    <rect x="126" y="224" width="4" height="14"/>
+  </g>
+  <g fill="#fdfcf8" fill-opacity="0.5">
+    <rect x="18" y="126" width="14" height="4"/>
+    <rect x="224" y="126" width="14" height="4"/>
+  </g>
+</svg>

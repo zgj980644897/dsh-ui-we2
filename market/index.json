@@ -1,0 +1,64 @@
+{
+  "format": 1,
+  "title": {
+    "en": "WE2 Console — DeepSeek Harness skin",
+    "zh": "WE2 控制台 · DeepSeek Harness 皮肤"
+  },
+  "description": {
+    "en": "An off-white and ink hard-sci-fi console skin for the DeepSeek Harness web UI: paper canvas, ink sidebar with inverted hover, ink code decks, a typing reasoning ticker, a centred approval dialog and a bezel HUD.",
+    "zh": "把 DeepSeek Harness 的对话页重绘成流浪地球式的米白 / 墨黑控制台：纸色画布、墨黑侧栏与反相悬停、墨黑代码舱、实时思考字幕、居中授权弹窗和边框 HUD。"
+  },
+  "metadata": {
+    "categories": {
+      "interface": {
+        "title": {
+          "en": "Interface",
+          "zh": "界面"
+        }
+      }
+    }
+  },
+  "plugins": [
+    {
+      "name": "dsh-ui-we2",
+      "title": {
+        "en": "WE2 Console",
+        "zh": "WE2 控制台"
+      },
+      "description": {
+        "en": "Off-white / ink hard-sci-fi skin for the DSH web UI: paper canvas, ink sidebar, ink code decks, a live reasoning ticker, a centred approval dialog, and a bezel HUD.",
+        "zh": "米白 / 墨黑硬核科幻皮肤：纸色画布、墨黑侧栏、墨黑代码舱、实时思考字幕、居中授权弹窗与边框 HUD。"
+      },
+      "author": "zgj980644897",
+      "homepage": "https://github.com/zgj980644897/dsh-ui-we2",
+      "repository": {
+        "url": "https://github.com/zgj980644897/dsh-ui-we2"
+      },
+      "icon": "https://raw.githubusercontent.com/zgj980644897/dsh-ui-we2/main/preview/icon.svg",
+      "metadata": {
+        "category": "interface",
+        "keywords": [
+          "theme",
+          "skin",
+          "sci-fi",
+          "wandering-earth",
+          "ui"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.10.0",
+          "publishTimestamp": 1793282840,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/zgj980644897/dsh-ui-we2",
+            "commit": "84aa6abcfb6fa3a3f6cf1df5647c2634cc404b90"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.3"
+          }
+        }
+      ]
+    }
+  ]
+}
